@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
 import { useApi } from '~/composables/useApi';
-import type { User } from '~/types/auth';
+import type { User, UserCredentials } from '~/types/auth';
 
 // Exportar la definición del store
 export const useAuthStore = defineStore('auth', () => {
@@ -19,13 +19,13 @@ export const useAuthStore = defineStore('auth', () => {
   const isLoading = computed(() => status.value === 'loading');
 
   // Acciones
-  async function login(credentials: { email: string; password: string }) {
+  async function login(credentials: UserCredentials) {
     status.value = 'loading';
     error.value = null;
     try {
       const data = await apiLogin(credentials);
 
-      user.value = data.id;
+      user.value = data.user;
       token.value = data.token;
       status.value = 'success';
       console.log('Login exitoso:', user.value);
@@ -38,14 +38,13 @@ export const useAuthStore = defineStore('auth', () => {
     }
   }
 
-  async function register(credentials: { email: string; password: string; name: string }) {
+  async function register(credentials: UserCredentials) {
     status.value = 'loading';
-    console.log("credentials...", credentials)
     error.value = null;
     try {
       const data = await apiRegister(credentials);
-      console.log("data...", data)
-      
+      console.log("data...", data);
+
       user.value = data.user;
       token.value = data.token;
       status.value = 'success';
@@ -66,5 +65,34 @@ export const useAuthStore = defineStore('auth', () => {
     console.log('Sesión cerrada.');
   }
 
-  return { user, token, status, error, isAuthenticated, isLoading, login, register, logout };
-});
+  return { 
+    user, 
+    token, 
+    status, 
+    error, 
+    isAuthenticated, 
+    isLoading, 
+    login, 
+    register, 
+    logout 
+  };
+}, 
+{
+  // Configuración de persistencia en localStorage
+  // persist: {
+  //   storage: typeof window !== 'undefined' ? localStorage : undefined,
+  //   paths: ['user', 'token'], // Solo persistir user y token
+  //   key: 'auth-store', // Nombre de la clave en localStorage
+  //   beforeRestore: (context:any) => {
+  //     console.log('🔄 Restaurando sesión desde localStorage...');
+  //   },
+  //   afterRestore: (context:any) => {
+  //     const { user, token } = context.store;
+  //     if (token && user) {
+  //       console.log('✅ Sesión restaurada para:', user.name || user.email);
+  //     }
+  //   },
+  // }
+  persist: true
+}
+);

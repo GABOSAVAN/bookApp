@@ -12,11 +12,14 @@ function handleLogin() {
 }
 </script>
 <template>
-    <UButton
-      v-if="!isAuthenticated"
-      class="w-full mt-4"
-      block size="lg"
-      color="primary"
-      label="Iniciar Sesión"
-      icon="i-heroicons-arrow-right-on-rectangle" @click="handleLogin" />
+    <div class="flex justify-end">
+        <UButton 
+        v-if="!isAuthenticated"
+        class="w-min mt-4 mr-6" 
+        block size="lg"
+        color="primary"
+        label="Iniciar Sesión"
+        icon="i-heroicons-arrow-right-on-rectangle" @click="handleLogin"
+        />
+    </div>
 </template>

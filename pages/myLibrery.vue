@@ -1,5 +1,10 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue';
+import auth from '~/middlewares/auth.global';
+
+definePageMeta({
+  middleware: [auth]
+});
 
 const books = ref([
   { id: 1, title: 'El Señor de los Anillos', author: 'J.R.R. Tolkien', year: 1954, review: 'Una obra maestra épica que cautiva desde la primera página.', rating: 5 },

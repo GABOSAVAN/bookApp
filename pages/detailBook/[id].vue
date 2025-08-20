@@ -55,7 +55,7 @@ const saveReview = () => {
         <div class="w-full">
           <label for="review" class="block text-lg font-medium mb-2">Escribe tu Review:</label>
           <UTextarea id="review" v-model="reviewText" :maxlength="500"
-            placeholder="Comparte tu opinión sobre el libro..." rows="5" />
+            placeholder="Comparte tu opinión sobre el libro..." rows=5 />
           <p class="text-sm text-gray-500 mt-1 text-right">
             {{ reviewText.length }} / 500 caracteres
           </p>

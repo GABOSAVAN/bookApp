@@ -2,7 +2,7 @@
 <template>
     <div>
       <AppHeader/>
-      <UiLoginButtom/>
+      <UiLoginButton/>
       <UiLogoutButton/>
   
       <main class="p-4">

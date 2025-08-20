@@ -88,7 +88,7 @@ const handleDelete = () => {
             v-model="editedReview"
             placeholder="Edita tu review..."
             :maxlength="500"
-            rows="5"
+            :rows="5"
           />
           <div class="flex items-center gap-2">
             <span class="font-medium">Calificación:</span>

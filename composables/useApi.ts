@@ -1,4 +1,4 @@
-import { useRuntimeConfig } from '#app';
+// import { useRuntimeConfig } from '#app';
 import type { UserCredentials } from '~/types/auth';
 
 export const useApi = () => {

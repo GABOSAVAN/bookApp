@@ -1,176 +1,10 @@
 <script setup lang="ts">
 import { ref } from 'vue';
+import type { ListBook } from '~/types/book';
+import { useBooks } from '~/composables/useBooks';
 
-// Datos de referencia para el mockup de resultados
-const booksData = [
-	{
-		"id": "OL166899W",
-		"title": "Записки изъ подполья",
-		"author": "Фёдор Михайлович Достоевский",
-		"cover_id": 9415092,
-		"publication_date": 1960,
-		"coverUrl": "https://covers.openlibrary.org/b/id/9415092-M.jpg"
-	},
-	{
-		"id": "OL1003017W",
-		"title": "Memórias póstumas de Brás Cubas",
-		"author": "Joaquim Maria Machado de Assis",
-		"cover_id": 123152,
-		"publication_date": 1881,
-		"coverUrl": "https://covers.openlibrary.org/b/id/123152-M.jpg"
-	},
-	{
-		"id": "OL7973273W",
-		"title": "The Devil's Dictionary",
-		"author": "Ambrose Bierce",
-		"cover_id": 12671319,
-		"publication_date": 1840,
-		"coverUrl": "https://covers.openlibrary.org/b/id/12671319-M.jpg"
-	},
-	{
-		"id": "OL52556W",
-		"title": "Die Leiden des jungen Werthers",
-		"author": "Johann Wolfgang von Goethe",
-		"cover_id": 7187281,
-		"publication_date": 1779,
-		"coverUrl": "https://covers.openlibrary.org/b/id/7187281-M.jpg"
-	},
-	{
-		"id": "OL19870W",
-		"title": "The Jungle Book",
-		"author": "Rudyard Kipling",
-		"cover_id": 3344204,
-		"publication_date": 1893,
-		"coverUrl": "https://covers.openlibrary.org/b/id/3344204-M.jpg"
-	},
-	{
-		"id": "OL81180W",
-		"title": "Lady Chatterley's Lover",
-		"author": "D. H. Lawrence",
-		"cover_id": 12983362,
-		"publication_date": 1900,
-		"coverUrl": "https://covers.openlibrary.org/b/id/12983362-M.jpg"
-	},
-	{
-		"id": "OL52114W",
-		"title": "The War of the Worlds",
-		"author": "H. G. Wells",
-		"cover_id": 36314,
-		"publication_date": 0,
-		"coverUrl": "https://covers.openlibrary.org/b/id/36314-M.jpg"
-	},
-	{
-		"id": "OL151411W",
-		"title": "Alice's Adventures in Wonderland / Through the Looking Glass",
-		"author": "Lewis Carroll",
-		"cover_id": 8595966,
-		"publication_date": 1889,
-		"coverUrl": "https://covers.openlibrary.org/b/id/8595966-M.jpg"
-	},
-	{
-		"id": "OL151406W",
-		"title": "Through the Looking-Glass",
-		"author": "Lewis Carroll",
-		"cover_id": 11272464,
-		"publication_date": 1865,
-		"coverUrl": "https://covers.openlibrary.org/b/id/11272464-M.jpg"
-	},
-	{
-		"id": "OL244537W",
-		"title": "The Art of War",
-		"author": "孙武",
-		"cover_id": 4849549,
-		"publication_date": 1900,
-		"coverUrl": "https://covers.openlibrary.org/b/id/4849549-M.jpg"
-	},
-	{
-		"id": "OL20600W",
-		"title": "Gulliver's Travels",
-		"author": "Jonathan Swift",
-		"cover_id": 12717083,
-		"publication_date": 1726,
-		"coverUrl": "https://covers.openlibrary.org/b/id/12717083-M.jpg"
-	},
-	{
-		"id": "OL138052W",
-		"title": "Alice's Adventures in Wonderland",
-		"author": "Lewis Carroll",
-		"cover_id": 10527843,
-		"publication_date": 1865,
-		"coverUrl": "https://covers.openlibrary.org/b/id/10527843-M.jpg"
-	},
-	{
-		"id": "OL827357W",
-		"title": "Zen and the Art of Motorcycle Maintenance",
-		"author": "Robert M. Pirsig",
-		"cover_id": 10673266,
-		"publication_date": 1974,
-		"coverUrl": "https://covers.openlibrary.org/b/id/10673266-M.jpg"
-	},
-	{
-		"id": "OL276395W",
-		"title": "Washington Square",
-		"author": "Henry James",
-		"cover_id": 8243278,
-		"publication_date": 1880,
-		"coverUrl": "https://covers.openlibrary.org/b/id/8243278-M.jpg"
-	},
-	{
-		"id": "OL15733518W",
-		"title": "Speeches",
-		"author": "Cicero",
-		"cover_id": 8236472,
-		"publication_date": 1499,
-		"coverUrl": "https://covers.openlibrary.org/b/id/8236472-M.jpg"
-	},
-	{
-		"id": "OL1445824W",
-		"title": "Der Einzige und sein Eigentum",
-		"author": "Max Stirner",
-		"cover_id": 7261395,
-		"publication_date": 1845,
-		"coverUrl": "https://covers.openlibrary.org/b/id/7261395-M.jpg"
-	},
-	{
-		"id": "OL10365273W",
-		"title": "El sexto",
-		"author": "José María Arguedas",
-		"cover_id": 5517436,
-		"publication_date": 1969,
-		"coverUrl": "https://covers.openlibrary.org/b/id/5517436-M.jpg"
-	},
-	{
-		"id": "OL11350239W",
-		"title": "Laws, etc",
-		"author": "England and Wales",
-		"cover_id": 11761863,
-		"publication_date": 1513,
-		"coverUrl": "https://covers.openlibrary.org/b/id/11761863-M.jpg"
-	},
-	{
-		"id": "OL67551W",
-		"title": "De officiis",
-		"author": "Cicero",
-		"cover_id": 6487218,
-		"publication_date": 1465,
-		"coverUrl": "https://covers.openlibrary.org/b/id/6487218-M.jpg"
-	},
-	{
-		"id": "OL1313851W",
-		"title": "Elegiae",
-		"author": "Sextus Propertius",
-		"cover_id": 5946488,
-		"publication_date": 1780,
-		"coverUrl": "https://covers.openlibrary.org/b/id/5946488-M.jpg"
-	},
-	{
-		"id": "OL20645179W",
-		"title": "Shuggie Bain",
-		"author": "Douglas Stuart",
-		"cover_id": 9271540,
-		"publication_date": 2020,
-		"coverUrl": "https://covers.openlibrary.org/b/id/9271540-M.jpg"
-	}]
+const { searchBooks } = useBooks();
+
 // Define las últimas 5 búsquedas como un array de strings.
 const lastSearches = ref(['Backlog', 'Todo', 'In Progress', 'Done', 'Another search']);
 
@@ -218,13 +52,25 @@ const handleKeyDown = (event: KeyboardEvent) => {
 };
 
 // Lógica de búsqueda
-const searchResults = ref([]);
-const handleSearch = () => {
+const searchResults = ref<ListBook>([]);
+const loading = ref(false);
+const error = ref<string | null>(null);
+
+const handleSearch = async () => {
+  console.log("buscando libros...")
   if (searchValue.value) {
-    console.log(`Buscando libros con el término: ${searchValue.value}`);
-    // Aquí iría la lógica para llamar a una API real.
-    // Por ahora, usamos el array de referencia.
-    searchResults.value = booksData;
+    loading.value = true;
+    error.value = null;
+    
+    try {
+      console.log(`Buscando libros con el término: ${searchValue.value}`);
+      searchResults.value = await searchBooks(searchValue.value);
+    } catch (err: any) {
+      error.value = 'Error al buscar libros';
+      console.error('Error searching books:', err);
+    } finally {
+      loading.value = false;
+    }
   }
 };
 </script>
@@ -262,10 +108,25 @@ const handleSearch = () => {
       </div>
 
       <!-- El botón de búsqueda se mantiene -->
-      <UButton @click="handleSearch">Buscar</UButton>
+      <UButton 
+      :loading="loading"
+      @click="handleSearch" 
+      >
+      Buscar
+    </UButton>
+    </div>
+
+    <!-- Mostrar estado de carga -->
+    <div v-if="loading" class="mt-8 text-center">
+      <p>Buscando libros...</p>
+    </div>
+
+    <!-- Mostrar error si existe -->
+    <div v-if="error" class="mt-8 text-center text-red-500">
+      <p>{{ error }}</p>
     </div>
 
     <!-- Sección de resultados de búsqueda -->
-    <BookList v-if="searchResults.length > 0" :books="searchResults" class="mt-8" />
+    <BookList v-if="searchResults.length > 0 && !loading" :books="searchResults" class="mt-8" />
   </div>
 </template>

@@ -1,7 +1,7 @@
 <template>
-    <div class="max-w-[200px] bg-white rounded-lg overflow-hidden shadow-lg transform transition-transform hover:scale-105">
+    <div class="max-w-[200px] rounded-lg overflow-hidden m shadow-lg transform transition-transform hover:scale-105">
       <NuxtLink :to="`/detailBook/${book.id}`">
-        <div class="relative w-full h-72 bg-gray-200">
+        <div class="relative w-full h-72">
           <img
             :src="book.coverUrl"
             :alt="`Portada de ${book.title}`"
@@ -10,8 +10,8 @@
           <div class="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
         </div>
         <div class="p-4 text-center">
-          <h3 class="text-md font-semibold text-gray-800 truncate">{{ book.title }}</h3>
-          <p class="text-sm text-gray-600 truncate">{{ book.author }}</p>
+          <h3 class="text-md font-semibold truncate">{{ book.title }}</h3>
+          <p class="text-sm truncate">{{ book.author }}</p>
         </div>
       </NuxtLink>
     </div>

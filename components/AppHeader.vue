@@ -25,7 +25,7 @@ const protectedLinks = [
 
 // Propiedad computada que filtra los enlaces
 const visibleLinks = computed(() => {
-  let currentLinks = [...baseLinks];
+  const currentLinks = [...baseLinks];
 
   // Si la ruta actual no es la página principal, agregamos el enlace de Inicio
   if (route.path !== '/') {

@@ -57,7 +57,6 @@ const loading = ref(false);
 const error = ref<string | null>(null);
 
 const handleSearch = async () => {
-  console.log("buscando libros...")
   if (searchValue.value) {
     loading.value = true;
     error.value = null;

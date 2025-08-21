@@ -60,13 +60,17 @@ const handleSearch = async () => {
   if (searchValue.value) {
     loading.value = true;
     error.value = null;
-    
+
     try {
       console.log(`Buscando libros con el término: ${searchValue.value}`);
       searchResults.value = await searchBooks(searchValue.value);
-    } catch (err: any) {
+    } catch (err: unknown) { // Aquí se corrigió el error de sintaxis y se usó 'unknown'
       error.value = 'Error al buscar libros';
-      console.error('Error searching books:', err);
+      if (err instanceof Error) {
+        console.error('Error searching books:', err.message);
+      } else {
+        console.error('Error searching books:', err);
+      }
     } finally {
       loading.value = false;
     }
@@ -80,39 +84,27 @@ const handleSearch = async () => {
 
     <div class="relative w-full max-w-lg flex items-center gap-4 px-4">
       <UInput
-        v-model="searchValue"
-        placeholder="Buscar..."
-        icon="i-lucide-search"
-        size="md"
-        variant="outline"
-        class="flex-grow"
-        @focus="handleInputFocus"
-        @blur="handleInputBlur"
-        @keydown="handleKeyDown"
-      />
+       v-model="searchValue" placeholder="Buscar..." icon="i-lucide-search" size="md" variant="outline"
+        class="flex-grow" @focus="handleInputFocus" @blur="handleInputBlur" @keydown="handleKeyDown" />
 
       <!-- Sección flotante de sugerencias -->
-      <div v-if="showSuggestions && lastSearches.length > 0" class="absolute top-full left-0 mt-2 w-full bg-blue border-gray-200 rounded-lg shadow-lg z-10">
+      <div
+       v-if="showSuggestions && lastSearches.length > 0"
+        class="absolute top-full left-0 mt-2 w-full bg-blue border-gray-200 rounded-lg shadow-lg z-10">
         <ul class="py-2">
           <li
-          v-for="(suggestion, index) in lastSearches"
-          :key="suggestion"
-          class="px-4 py-2 cursor-pointer hover:bg-blue-100"
-          :class="{ 'bg-gray-600': index === selectedIndex }"
-          @mousedown="selectSuggestion(suggestion)"
-          >
+           v-for="(suggestion, index) in lastSearches" :key="suggestion"
+            class="px-4 py-2 cursor-pointer hover:bg-blue-100" :class="{ 'bg-gray-600': index === selectedIndex }"
+            @mousedown="selectSuggestion(suggestion)">
             {{ suggestion }}
           </li>
         </ul>
       </div>
 
       <!-- El botón de búsqueda se mantiene -->
-      <UButton 
-      :loading="loading"
-      @click="handleSearch" 
-      >
-      Buscar
-    </UButton>
+      <UButton :loading="loading" @click="handleSearch">
+        Buscar
+      </UButton>
     </div>
 
     <!-- Mostrar estado de carga -->

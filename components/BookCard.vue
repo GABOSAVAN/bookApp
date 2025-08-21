@@ -3,7 +3,14 @@
       <NuxtLink :to="`/detailBook/${book.id}`">
         <div class="relative w-full h-72">
           <img
+            v-if="book.coverUrl"
             :src="book.coverUrl"
+            :alt="`Portada de ${book.title}`"
+            class="w-full h-full object-cover"
+          />
+          <img
+            v-if="!book.coverUrl"
+            src="../assets/images/ind.png"
             :alt="`Portada de ${book.title}`"
             class="w-full h-full object-cover"
           />

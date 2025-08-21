@@ -9,7 +9,7 @@ export const useBooks = () => {
       : `${config.public.apiBase}books/search`
 
     const data = await $fetch<ListBook>(url)
-    console.log(`Resultados de busqueda: ${data}`);
+    console.log('Resultados de busqueda:', data);
     return data
   }
 

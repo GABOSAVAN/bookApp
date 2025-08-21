@@ -7,14 +7,14 @@
             :src="book.coverUrl"
             :alt="`Portada de ${book.title}`"
             class="w-full h-full object-cover"
-          />
+          >
           <img
             v-if="!book.coverUrl"
             src="../assets/images/ind.png"
             :alt="`Portada de ${book.title}`"
             class="w-full h-full object-cover"
-          />
-          <div class="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div>
+          >
+          <!-- <div class="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent"></div> -->
         </div>
         <div class="p-4 text-center">
           <h3 class="text-md font-semibold truncate">{{ book.title }}</h3>
@@ -25,7 +25,7 @@
   </template>
   
   <script setup lang="ts">
-  const props = defineProps<{
+  const _props = defineProps<{
     book: {
       id: string;
       title: string;

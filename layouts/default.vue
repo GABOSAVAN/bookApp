@@ -1,10 +1,12 @@
+<script setup lang="ts">
+
+</script>
+
 
 <template>
     <div>
       <AppHeader/>
-      <UiLoginButton/>
-      <UiLogoutButton/>
-  
+      <AuthButtons/>  
       <main class="p-4">
           <slot />
       </main>

@@ -58,13 +58,7 @@ const isMobileMenuOpen = ref(false);
         >
           {{ link.label }}
         </NuxtLink>
-        <ThemeSwitcher />
-        <template v-if="isAuthenticated">
-          <LogoutButton />
-        </template>
-        <template v-else>
-          <LoginButton />
-        </template>
+        <ThemeSwitcher />        
       </nav>
 
       <UButton
@@ -100,13 +94,9 @@ const isMobileMenuOpen = ref(false);
         >
           {{ link.label }}
         </NuxtLink>
-        <ThemeSwitcher />
-        <template v-if="isAuthenticated">
-          <LogoutButton @click="isMobileMenuOpen = false" />
-        </template>
-        <template v-else>
-          <LoginButton @click="isMobileMenuOpen = false" />
-        </template>
+        <div class="flex justify-center mt-2">
+          <ThemeSwitcher />
+        </div>
       </nav>
     </div>
 

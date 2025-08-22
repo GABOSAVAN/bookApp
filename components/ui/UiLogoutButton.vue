@@ -6,17 +6,16 @@
 
   // Crea una función para manejar el evento de clic
   function handleLogout() {
-    authStore.logout();
-    // Opcional: Redirigir al usuario a la página de inicio de sesión
-    navigateTo('/login');
+    authStore.logout();    
+    navigateTo('/');
   }
 </script>
 <template>
   <div class="flex justify-end">
     <UButton 
-    class="w-full mt-4"
+    class="w-min mt-4 mr-6"
     block size="lg"
-    color="primary"
+    color="secundary"
     variant="ghost"
     label="Cerrar Sesión"
     icon="i-heroicons-arrow-left-on-rectangle"

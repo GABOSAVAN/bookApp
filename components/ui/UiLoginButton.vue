@@ -9,7 +9,7 @@ function handleLogin() {
         <UButton 
         class="w-min mt-4 mr-6" 
         block size="lg"
-        color="primary"
+        color="secundary"
         label="Iniciar Sesión"
         icon="i-heroicons-arrow-right-on-rectangle" @click="handleLogin"
         />

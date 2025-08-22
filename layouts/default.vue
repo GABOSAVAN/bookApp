@@ -4,7 +4,7 @@
 
 
 <template>
-    <div>
+    <div class="box-border">
       <AppHeader/>
       <AuthButtons/>  
       <main>

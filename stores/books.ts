@@ -34,8 +34,8 @@ export const useBooksStore = defineStore('books', () => {
 
   // Getters
   const hasResults = computed(() => searchResults.value.length > 0)
-  const isEmpty = computed(() => hasSearched.value && searchResults.value.length === 0 && !loading.value)
-
+  const isEmpty = computed(() => hasSearched.value && searchResults.value.length === 0 && !loading.value && !error.value)
+  
   return {
     // Estado (readonly para evitar mutaciones directas)
     searchResults: readonly(searchResults),

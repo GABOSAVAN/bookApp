@@ -1,10 +1,19 @@
 <script setup lang="ts">
 import { ref } from 'vue';
-import type { ListBook } from '~/types/book';
 import { useBooks } from '~/composables/useBooks';
 
-const { searchBooks } = useBooks();
+const store = useBooksStore();
+const { 
+  searchResults, 
+  currentQuery, 
+  loading, 
+  error, 
+  hasResults, 
+  isEmpty 
+} = storeToRefs(store);
 
+const { searchBooks } = useBooks();
+  
 // Define las últimas 5 búsquedas como un array de strings.
 const lastSearches = ref(['Backlog', 'Todo', 'In Progress', 'Done', 'Another search']);
 
@@ -16,6 +25,13 @@ const showSuggestions = ref(false);
 
 // Variable para el índice de la sugerencia seleccionada (para navegación con teclado).
 const selectedIndex = ref(-1);
+
+// Al montar el componente, restaurar el valor de búsqueda si existe
+onMounted(() => {
+  if (currentQuery) {
+    searchValue.value = currentQuery.value;
+  }
+});
 
 // Maneja la visibilidad del cuadro de sugerencias
 const handleInputFocus = () => {
@@ -51,31 +67,32 @@ const handleKeyDown = (event: KeyboardEvent) => {
   }
 };
 
-// Lógica de búsqueda
-const searchResults = ref<ListBook>([]);
-const loading = ref(false);
-const error = ref<string | null>(null);
-
 const handleSearch = async () => {
   if (searchValue.value) {
-    loading.value = true;
-    error.value = null;
-
+    
     try {
-      console.log(`Buscando libros con el término: ${searchValue.value}`);
-      searchResults.value = await searchBooks(searchValue.value);
-    } catch (err: unknown) { // Aquí se corrigió el error de sintaxis y se usó 'unknown'
-      error.value = 'Error al buscar libros';
-      if (err instanceof Error) {
-        console.error('Error searching books:', err.message);
-      } else {
-        console.error('Error searching books:', err);
-      }
-    } finally {
-      loading.value = false;
+      // console.log(`Buscando libros con el término: ${searchValue.value}`);
+      await searchBooks(searchValue.value.trim());
+      
+      // Agregar a las últimas búsquedas si no existe
+       if (!lastSearches.value.includes(searchValue.value)) {
+         lastSearches.value.unshift(searchValue.value);
+        //  Mantener solo las últimas 5 búsquedas
+         if (lastSearches.value.length > 5) {
+           lastSearches.value = lastSearches.value.slice(0, 5);
+         }
+       }
+    } catch (err) {
+      console.error('Error searching books:', err);
     }
   }
 };
+
+const handleClearSearch = () => {
+  searchValue.value = '';
+  store.clearSearch();
+};
+
 </script>
 
 <template>
@@ -84,40 +101,67 @@ const handleSearch = async () => {
 
     <div class="relative w-full max-w-lg flex items-center gap-4 px-4">
       <UInput
-       v-model="searchValue" placeholder="Buscar..." icon="i-lucide-search" size="md" variant="outline"
-        class="flex-grow" @focus="handleInputFocus" @blur="handleInputBlur" @keydown="handleKeyDown" />
+       v-model="searchValue"
+       placeholder="Buscar..."
+       icon="i-lucide-search"
+       size="md"
+       variant="outline"
+       class="flex-grow"
+       @focus="handleInputFocus"
+       @blur="handleInputBlur"
+       @keydown="handleKeyDown"
+       />
 
-      <!-- Sección flotante de sugerencias -->
       <div
        v-if="showSuggestions && lastSearches.length > 0"
         class="absolute top-full left-0 mt-2 w-full bg-blue border-gray-200 rounded-lg shadow-lg z-10">
         <ul class="py-2">
           <li
            v-for="(suggestion, index) in lastSearches" :key="suggestion"
-            class="px-4 py-2 cursor-pointer hover:bg-blue-100" :class="{ 'bg-gray-600': index === selectedIndex }"
+            class="px-4 py-2 cursor-pointer hover:bg-blue-100 dark:hover:color-black"
+            :class="{ 'bg-gray-600': index === selectedIndex }"
             @mousedown="selectSuggestion(suggestion)">
             {{ suggestion }}
           </li>
         </ul>
       </div>
 
-      <!-- El botón de búsqueda se mantiene -->
       <UButton :loading="loading" @click="handleSearch">
         Buscar
       </UButton>
+      <UButton 
+          v-if="hasResults || currentQuery" 
+          variant="ghost"
+          size="md"
+          @click="handleClearSearch" 
+        >
+          Limpiar
+        </UButton>
     </div>
 
-    <!-- Mostrar estado de carga -->
+
     <div v-if="loading" class="mt-8 text-center">
       <p>Buscando libros...</p>
     </div>
 
-    <!-- Mostrar error si existe -->
     <div v-if="error" class="mt-8 text-center text-red-500">
       <p>{{ error }}</p>
     </div>
 
-    <!-- Sección de resultados de búsqueda -->
-    <BookList v-if="searchResults.length > 0 && !loading" :books="searchResults" class="mt-8" />
+    <div v-if="isEmpty" class="mt-8 text-center text-gray-500">
+      <p>No se encontraron libros para "{{ currentQuery }}"</p>
+    </div>
+
+    <div v-if="searchResults.length > 0 || loading" class="mt-8">
+      <h3>
+        Libros encontrados {{ searchResults.length }}
+      </h3>
+    </div>
+
+    <BookList
+     v-if="searchResults.length > 0 
+     && !loading"
+     :books="searchResults" class="mt-8"
+     />
   </div>
 </template>

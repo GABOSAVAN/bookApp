@@ -7,7 +7,7 @@
     <div>
       <AppHeader/>
       <AuthButtons/>  
-      <main class="p-4">
+      <main>
           <slot />
       </main>
   

@@ -118,8 +118,8 @@ const handleClearSearch = () => {
         <ul class="py-2">
           <li
            v-for="(suggestion, index) in lastSearches" :key="suggestion"
-            class="px-4 py-2 cursor-pointer hover:bg-blue-100 dark:hover:color-black"
-            :class="{ 'bg-gray-600': index === selectedIndex }"
+            class="px-4 py-2 cursor-pointer hover:bg-blue-100 dark:hover:bg-gray-700"
+            :class="{ 'bg-gray-100 dark:bg-gray-800': index === selectedIndex }"
             @mousedown="selectSuggestion(suggestion)">
             {{ suggestion }}
           </li>

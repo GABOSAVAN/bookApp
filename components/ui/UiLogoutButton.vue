@@ -15,7 +15,7 @@
     <UButton 
     class="w-min mt-4 mr-6"
     block size="lg"
-    color="secundary"
+    color="secondary"
     variant="ghost"
     label="Cerrar Sesión"
     icon="i-heroicons-arrow-left-on-rectangle"

@@ -8,3 +8,12 @@ export interface Book {
   }
 
   export type ListBook = Boot[]
+
+  export interface Review {
+    id: string
+    bookId: string
+    userId: string
+    rating: number
+    description: string
+    createdAt: string
+  }

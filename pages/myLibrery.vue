@@ -19,7 +19,7 @@ const sortOrder = ref('asc'); // 'asc' o 'desc'
 const showReviewedOnly = ref(false);
 
 const filteredAndSortedBooks = computed(() => {
-  let filteredBooks = books.value.filter(book => {
+  const filteredBooks = books.value.filter(book => {
     const matchesSearch = book.title.toLowerCase().includes(searchTerm.value.toLowerCase()) ||
                         book.author.toLowerCase().includes(searchTerm.value.toLowerCase());
     const matchesReviewFilter = !showReviewedOnly.value || (showReviewedOnly.value && book.review.length > 0);

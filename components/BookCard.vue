@@ -25,12 +25,9 @@
   </template>
   
   <script setup lang="ts">
-  const _props = defineProps<{
-    book: {
-      id: string;
-      title: string;
-      author: string;
-      coverUrl: string;
-    };
-  }>();
+  import type { Book } from '~/types/book'
+
+const _props = defineProps<{
+  book: Book;
+}>();
   </script>

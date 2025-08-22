@@ -43,7 +43,6 @@ export const useAuthStore = defineStore('auth', () => {
     error.value = null;
     try {
       const data = await apiRegister(credentials);
-      console.log("data...", data);
 
       user.value = data.user;
       token.value = data.token;
@@ -77,22 +76,7 @@ export const useAuthStore = defineStore('auth', () => {
     logout 
   };
 }, 
-{
-  // Configuración de persistencia en localStorage
-  // persist: {
-  //   storage: typeof window !== 'undefined' ? localStorage : undefined,
-  //   paths: ['user', 'token'], // Solo persistir user y token
-  //   key: 'auth-store', // Nombre de la clave en localStorage
-  //   beforeRestore: (context:any) => {
-  //     console.log('🔄 Restaurando sesión desde localStorage...');
-  //   },
-  //   afterRestore: (context:any) => {
-  //     const { user, token } = context.store;
-  //     if (token && user) {
-  //       console.log('✅ Sesión restaurada para:', user.name || user.email);
-  //     }
-  //   },
-  // }
+{ 
   persist: true
 }
 );

@@ -20,7 +20,7 @@ export const useBookDetail = () => {
     store.setErrorBook(null)
 
     try {
-      const url = `${config.public.apiBase}/books/${bookId}`
+      const url = `${config.public.apiBase}books/${bookId}`
       const book = await $fetch<Book>(url)
       store.setCurrentBook(book)
     } catch (err: any) {
@@ -39,7 +39,6 @@ export const useBookDetail = () => {
     try {
       const url = `${config.public.apiBase}books/review/${bookId}`
       const reviews = await $fetch<Review[]>(url)
-      console.log("reviews...", reviews)
       store.setReviews(reviews)
     } catch (err: any) {
       const errorMessage = err?.message || 'Error al cargar las reseñas'

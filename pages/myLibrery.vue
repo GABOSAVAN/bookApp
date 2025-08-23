@@ -77,11 +77,6 @@ const columns: TableColumn<Book>[] = [{
   enableHiding: false,
   size: 40
 }, {
-  accessorKey: 'id',
-  header: '#',
-  cell: ({ row }) => `#${row.getValue('id')}`,
-  size: 60
-}, {
   accessorKey: 'title',
   header: ({ column }) => {
     const isSorted = column.getIsSorted()
@@ -118,11 +113,6 @@ const columns: TableColumn<Book>[] = [{
   }, row.getValue('author')),
   minSize: 120
 }, {
-  accessorKey: 'year',
-  header: 'Año',
-  cell: ({ row }) => h('div', { class: 'text-center' }, row.getValue('year')),
-  size: 80
-}, {
   accessorKey: 'rating',
   header: 'Rating',
   cell: ({ row }) => {
@@ -155,20 +145,6 @@ const columns: TableColumn<Book>[] = [{
   },
   size: 100
 }, {
-  accessorKey: 'dateAdded',
-  header: 'Agregado',
-  cell: ({ row }) => {
-    const date = new Date(row.getValue('dateAdded'))
-    return h('div', { 
-      class: 'text-sm text-gray-500 dark:text-gray-400',
-      title: date.toLocaleString('es-ES')
-    }, date.toLocaleDateString('es-ES', {
-      day: 'numeric',
-      month: 'short'
-    }))
-  },
-  size: 100
-}, {
   id: 'actions',
   enableHiding: false,
   cell: ({ row }) => {
@@ -176,18 +152,6 @@ const columns: TableColumn<Book>[] = [{
     const items = [{
       type: 'label',
       label: 'Acciones'
-    }, {
-      label: 'Copiar ID',
-      icon: 'i-lucide-copy',
-      onSelect() {
-        copy(book.id.toString())
-        toast.add({
-          title: 'ID copiado',
-          description: 'El ID del libro se copió al portapapeles',
-          color: 'success' as const,
-          icon: 'i-lucide-circle-check'
-        })
-      }
     }, {
       label: 'Ver detalles',
       icon: 'i-lucide-eye',
@@ -238,16 +202,27 @@ const columns: TableColumn<Book>[] = [{
 
 const table = useTemplateRef('table')
 const searchQuery = ref('')
+const showOnlyWithReview = ref(false)
 
-// Filtrar libros por título o autor
+// Filtrar libros por título o autor y opcionalmente por reseña
 const filteredBooks = computed(() => {
-  if (!searchQuery.value) return books.value
+  let filtered = books.value
   
-  const query = searchQuery.value.toLowerCase()
-  return books.value.filter(book => 
-    book.title.toLowerCase().includes(query) ||
-    book.author.toLowerCase().includes(query)
-  )
+  // Filtrar por query de búsqueda
+  if (searchQuery.value) {
+    const query = searchQuery.value.toLowerCase()
+    filtered = filtered.filter(book => 
+      book.title.toLowerCase().includes(query) ||
+      book.author.toLowerCase().includes(query)
+    )
+  }
+  
+  // Filtrar por libros con reseña
+  if (showOnlyWithReview.value) {
+    filtered = filtered.filter(book => book.review && book.review.trim().length > 0)
+  }
+  
+  return filtered
 })
 
 function randomize() {
@@ -285,8 +260,18 @@ function clearSelection() {
             />
           </div>
           
-          <!-- Action Buttons -->
-          <div class="flex gap-2 flex-wrap">
+          <!-- Filters and Action Buttons -->
+          <div class="flex gap-2 flex-wrap items-center">
+            <!-- Review Filter Toggle -->
+            <UButton 
+              :color="showOnlyWithReview ? 'primary' : 'neutral'" 
+              :variant="showOnlyWithReview ? 'solid' : 'outline'"
+              icon="i-lucide-message-square"
+              :label="showOnlyWithReview ? 'Con reseña' : 'Todas'"
+              @click="showOnlyWithReview = !showOnlyWithReview"
+              size="sm"
+            />
+            
             <UButton 
               color="neutral" 
               variant="outline"
@@ -331,13 +316,13 @@ function clearSelection() {
         <div class="block md:hidden">
           <div class="divide-y divide-gray-200 dark:divide-gray-700">
             <div v-for="book in filteredBooks" :key="book.id" class="p-4">
-              <div class="flex items-start justify-between mb-3">
+                              <div class="flex items-start justify-between mb-3">
                 <div class="flex-1 min-w-0">
                   <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100 truncate">
                     {{ book.title }}
                   </h3>
                   <p class="text-sm text-gray-600 dark:text-gray-400">
-                    {{ book.author }} • {{ book.year }}
+                    {{ book.author }}
                   </p>
                 </div>
                 <UDropdownMenu
@@ -372,7 +357,7 @@ function clearSelection() {
                   </span>
                 </div>
                 <span class="text-xs text-gray-500 dark:text-gray-400">
-                  #{{ book.id }}
+                  {{ book.year }}
                 </span>
               </div>
             </div>
@@ -391,31 +376,42 @@ function clearSelection() {
               <div class="p-4 bg-gray-50 dark:bg-gray-900/50 border-t border-gray-200 dark:border-gray-700">
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 text-sm">
                   <div>
+                    <span class="font-medium text-gray-700 dark:text-gray-300">Año de publicación:</span>
+                    <span class="ml-2 text-gray-600 dark:text-gray-400">{{ row.original.year }}</span>
+                  </div>
+                  
+                  <div v-if="row.original.genre">
                     <span class="font-medium text-gray-700 dark:text-gray-300">Género:</span>
                     <span class="ml-2 text-gray-600 dark:text-gray-400">{{ row.original.genre }}</span>
                   </div>
-                  <div>
+                  
+                  <div v-if="row.original.pages">
                     <span class="font-medium text-gray-700 dark:text-gray-300">Páginas:</span>
                     <span class="ml-2 text-gray-600 dark:text-gray-400">{{ row.original.pages }}</span>
                   </div>
-                  <div>
+                  
+                  <div v-if="row.original.isbn">
                     <span class="font-medium text-gray-700 dark:text-gray-300">ISBN:</span>
                     <span class="ml-2 text-gray-600 dark:text-gray-400 font-mono">{{ row.original.isbn }}</span>
                   </div>
-                  <div>
+                  
+                  <div v-if="row.original.language">
                     <span class="font-medium text-gray-700 dark:text-gray-300">Idioma:</span>
                     <span class="ml-2 text-gray-600 dark:text-gray-400">{{ row.original.language }}</span>
                   </div>
-                  <div>
+                  
+                  <div v-if="row.original.publisher">
                     <span class="font-medium text-gray-700 dark:text-gray-300">Editorial:</span>
                     <span class="ml-2 text-gray-600 dark:text-gray-400">{{ row.original.publisher }}</span>
                   </div>
-                  <div>
+                  
+                  <div v-if="row.original.dateAdded">
                     <span class="font-medium text-gray-700 dark:text-gray-300">Agregado:</span>
                     <span class="ml-2 text-gray-600 dark:text-gray-400">{{ new Date(row.original.dateAdded).toLocaleDateString('es-ES') }}</span>
                   </div>
                 </div>
-                <div v-if="row.original.review" class="mt-4">
+                
+                <div v-if="row.original.review && row.original.review.trim()" class="mt-4">
                   <span class="font-medium text-gray-700 dark:text-gray-300">Reseña:</span>
                   <p class="mt-1 text-gray-600 dark:text-gray-400 italic">{{ row.original.review }}</p>
                 </div>

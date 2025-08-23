@@ -127,7 +127,8 @@ const handleClearSearch = () => {
       </div>
 
       <UButton :loading="loading" @click="handleSearch">
-        Buscar
+        <span v-if="loading">Buscando...</span>
+        <span v-else>Buscar</span>
       </UButton>
       <UButton 
           v-if="hasResults || currentQuery" 

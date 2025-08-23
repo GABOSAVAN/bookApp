@@ -5,3 +5,9 @@ declare module '#app' {
     $pinia: Pinia;
   }
 }
+
+interface ApiResponseError {
+  data?: {
+    message: string;
+  };
+}

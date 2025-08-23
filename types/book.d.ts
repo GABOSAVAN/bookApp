@@ -17,3 +17,9 @@ export interface Book {
     description: string
     createdAt: string
   }
+
+  export interface Selection {
+    _id: string
+    book_id: Book
+    userReview: Review
+  }

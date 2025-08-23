@@ -11,14 +11,12 @@
   }
 </script>
 <template>
-  <div class="flex justify-end">
     <UButton 
-    class="w-min mt-4 mr-6"
+    class="w-min"
     block size="lg"
     color="secondary"
     variant="ghost"
     label="Cerrar Sesión"
     icon="i-heroicons-arrow-left-on-rectangle"
     @click="handleLogout" />
-  </div>
 </template>

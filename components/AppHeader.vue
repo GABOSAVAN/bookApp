@@ -13,11 +13,6 @@ const { isAuthenticated } = storeToRefs(authStore);
 // Accede a la ruta actual
 const route = useRoute();
 
-// Enlaces que siempre son visibles (o casi siempre)
-const baseLinks = [
-  { label: 'Libro de Ejemplo', to: '/detailBook/123' }
-];
-
 // Enlaces solo para usuarios autenticados
 const protectedLinks = [
   { label: 'Mi Biblioteca', to: '/myLibrery' }
@@ -25,7 +20,7 @@ const protectedLinks = [
 
 // Propiedad computada que filtra los enlaces
 const visibleLinks = computed(() => {
-  const currentLinks = [...baseLinks];
+  const currentLinks = [];
 
   // Si la ruta actual no es la página principal, agregamos el enlace de Inicio
   if (route.path !== '/') {
@@ -58,7 +53,8 @@ const isMobileMenuOpen = ref(false);
         >
           {{ link.label }}
         </NuxtLink>
-        <ThemeSwitcher />        
+        <ThemeSwitcher /> 
+        <AuthButtons />
       </nav>
 
       <UButton
@@ -95,7 +91,10 @@ const isMobileMenuOpen = ref(false);
           {{ link.label }}
         </NuxtLink>
         <div class="flex justify-center mt-2">
-          <ThemeSwitcher />
+          <ThemeSwitcher />          
+        </div>
+        <div class="flex justify-center mt-2">
+          <AuthButtons />
         </div>
       </nav>
     </div>

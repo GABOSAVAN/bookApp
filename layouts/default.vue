@@ -1,13 +1,14 @@
 <script setup lang="ts">
-
+const Toaster = { position: 'top-right' as const}
 </script>
-<template>
-  <div>
-    <AppHeader />
-    <AuthButtons />
-    <main>
-      <slot />
-    </main>
-    <AppFooter />
-  </div>
+<template>   
+  <UApp :toaster="Toaster">
+    <div>     
+      <AppHeader />         
+      <main>       
+        <slot />     
+      </main>     
+      <AppFooter />   
+    </div> 
+  </UApp>
 </template>

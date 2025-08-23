@@ -100,6 +100,7 @@ onUnmounted(() => {
                 <span class="text-gray-500">({{ reviews.length }} reseña{{ reviews.length !== 1 ? 's' : '' }})</span>
               </div>
           </div>
+          <LibraryButton/>
         </div>
       </div>      
     </div>

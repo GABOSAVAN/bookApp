@@ -5,14 +5,12 @@ function handleLogin() {
 }
 </script>
 <template>
-    <div class="flex justify-end">
         <UButton 
-        class="w-min mt-4 mr-6" 
+        class="w-min" 
         block size="lg"
         color="secondary"
         label="Iniciar Sesión"
         icon="i-heroicons-arrow-right-on-rectangle"
         @click="handleLogin"
         />
-    </div>
 </template>

@@ -3,6 +3,7 @@ import { h, resolveComponent } from 'vue'
 import { upperFirst } from 'scule'
 import type { TableColumn } from '@nuxt/ui'
 import { useClipboard } from '@vueuse/core'
+import type { Book } from '~/types/book'
 
 const UButton = resolveComponent('UButton')
 const UCheckbox = resolveComponent('UCheckbox')
@@ -12,235 +13,209 @@ const UDropdownMenu = resolveComponent('UDropdownMenu')
 const toast = useToast()
 const { copy } = useClipboard()
 
-type Payment = {
-  id: string
-  date: string
-  status: 'paid' | 'failed' | 'refunded'
-  email: string
-  amount: number
-}
+const books = ref<Book[]>([
+  { 
+    id: 1,
+    title: 'El Señor de los Anillos',
+    author: 'J.R.R. Tolkien',
+    year: 1954,
+    review: 'Una obra maestra épica que cautiva desde la primera página.',
+    rating: 5,
+    genre: 'Fantasía',
+    pages: 1216,
+    isbn: '9780544003415',
+    language: 'Español',
+    publisher: 'Minotauro',
+    dateAdded: new Date('2024-01-15'),
+    status: 'read'
+  },
+  { 
+    id: 2,
+    title: 'Cien años de soledad',
+    author: 'Gabriel García Márquez',
+    year: 1967,
+    review: 'Una narrativa magistral del realismo mágico.',
+    rating: 5,
+    genre: 'Realismo mágico',
+    pages: 417,
+    isbn: '9780307474728',
+    language: 'Español',
+    publisher: 'Sudamericana',
+    dateAdded: new Date('2024-02-10'),
+    status: 'reading'
+  },
+  { 
+    id: 3,
+    title: '1984',
+    author: 'George Orwell',
+    year: 1949,
+    review: 'Una distopía inquietante y relevante.',
+    rating: 4,
+    genre: 'Distopía',
+    pages: 328,
+    isbn: '9780451524935',
+    language: 'Inglés',
+    publisher: 'Signet Classics',
+    dateAdded: new Date('2024-03-05'),
+    status: 'to-read'
+  }
+]);
 
-const data = ref<Payment[]>([{
-  id: '4600',
-  date: '2024-03-11T15:30:00',
-  status: 'paid',
-  email: 'james.anderson@example.com',
-  amount: 594
-}, {
-  id: '4599',
-  date: '2024-03-11T10:10:00',
-  status: 'failed',
-  email: 'mia.white@example.com',
-  amount: 276
-}, {
-  id: '4598',
-  date: '2024-03-11T08:50:00',
-  status: 'refunded',
-  email: 'william.brown@example.com',
-  amount: 315
-}, {
-  id: '4597',
-  date: '2024-03-10T19:45:00',
-  status: 'paid',
-  email: 'emma.davis@example.com',
-  amount: 529
-}, {
-  id: '4596',
-  date: '2024-03-10T15:55:00',
-  status: 'paid',
-  email: 'ethan.harris@example.com',
-  amount: 639
-}, {
-  id: '4595',
-  date: '2024-03-10T13:40:00',
-  status: 'refunded',
-  email: 'ava.thomas@example.com',
-  amount: 428
-}, {
-  id: '4594',
-  date: '2024-03-10T09:15:00',
-  status: 'paid',
-  email: 'michael.wilson@example.com',
-  amount: 683
-}, {
-  id: '4593',
-  date: '2024-03-09T20:25:00',
-  status: 'failed',
-  email: 'olivia.taylor@example.com',
-  amount: 947
-}, {
-  id: '4592',
-  date: '2024-03-09T18:45:00',
-  status: 'paid',
-  email: 'benjamin.jackson@example.com',
-  amount: 851
-}, {
-  id: '4591',
-  date: '2024-03-09T16:05:00',
-  status: 'paid',
-  email: 'sophia.miller@example.com',
-  amount: 762
-}, {
-  id: '4590',
-  date: '2024-03-09T14:20:00',
-  status: 'paid',
-  email: 'noah.clark@example.com',
-  amount: 573
-}, {
-  id: '4589',
-  date: '2024-03-09T11:35:00',
-  status: 'failed',
-  email: 'isabella.lee@example.com',
-  amount: 389
-}, {
-  id: '4588',
-  date: '2024-03-08T22:50:00',
-  status: 'refunded',
-  email: 'liam.walker@example.com',
-  amount: 701
-}, {
-  id: '4587',
-  date: '2024-03-08T20:15:00',
-  status: 'paid',
-  email: 'charlotte.hall@example.com',
-  amount: 856
-}, {
-  id: '4586',
-  date: '2024-03-08T17:40:00',
-  status: 'paid',
-  email: 'mason.young@example.com',
-  amount: 492
-}, {
-  id: '4585',
-  date: '2024-03-08T14:55:00',
-  status: 'failed',
-  email: 'amelia.king@example.com',
-  amount: 637
-}, {
-  id: '4584',
-  date: '2024-03-08T12:30:00',
-  status: 'paid',
-  email: 'elijah.wright@example.com',
-  amount: 784
-}, {
-  id: '4583',
-  date: '2024-03-08T09:45:00',
-  status: 'refunded',
-  email: 'harper.scott@example.com',
-  amount: 345
-}, {
-  id: '4582',
-  date: '2024-03-07T23:10:00',
-  status: 'paid',
-  email: 'evelyn.green@example.com',
-  amount: 918
-}, {
-  id: '4581',
-  date: '2024-03-07T20:25:00',
-  status: 'paid',
-  email: 'logan.baker@example.com',
-  amount: 567
-}])
-
-const columns: TableColumn<Payment>[] = [{
+const columns: TableColumn<Book>[] = [{
   id: 'select',
   header: ({ table }) => h(UCheckbox, {
     'modelValue': table.getIsSomePageRowsSelected() ? 'indeterminate' : table.getIsAllPageRowsSelected(),
     'onUpdate:modelValue': (value: boolean | 'indeterminate') => table.toggleAllPageRowsSelected(!!value),
-    'aria-label': 'Select all'
+    'aria-label': 'Seleccionar todos'
   }),
   cell: ({ row }) => h(UCheckbox, {
     'modelValue': row.getIsSelected(),
     'onUpdate:modelValue': (value: boolean | 'indeterminate') => row.toggleSelected(!!value),
-    'aria-label': 'Select row'
+    'aria-label': 'Seleccionar fila'
   }),
   enableSorting: false,
-  enableHiding: false
+  enableHiding: false,
+  size: 40
 }, {
   accessorKey: 'id',
   header: '#',
-  cell: ({ row }) => `#${row.getValue('id')}`
+  cell: ({ row }) => `#${row.getValue('id')}`,
+  size: 60
 }, {
-  accessorKey: 'date',
-  header: 'Date',
-  cell: ({ row }) => {
-    return new Date(row.getValue('date')).toLocaleString('en-US', {
-      day: 'numeric',
-      month: 'short',
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: false
-    })
-  }
-}, {
-  accessorKey: 'status',
-  header: 'Status',
-  cell: ({ row }) => {
-    const color = ({
-      paid: 'success' as const,
-      failed: 'error' as const,
-      refunded: 'neutral' as const
-    })[row.getValue('status') as string]
-
-    return h(UBadge, { class: 'capitalize', variant: 'subtle', color }, () => row.getValue('status'))
-  }
-}, {
-  accessorKey: 'email',
+  accessorKey: 'title',
   header: ({ column }) => {
     const isSorted = column.getIsSorted()
-
     return h(UButton, {
       color: 'neutral',
       variant: 'ghost',
-      label: 'Email',
+      label: 'Título',
       icon: isSorted ? (isSorted === 'asc' ? 'i-lucide-arrow-up-narrow-wide' : 'i-lucide-arrow-down-wide-narrow') : 'i-lucide-arrow-up-down',
-      class: '-mx-2.5',
+      class: '-mx-2.5 text-left justify-start',
       onClick: () => column.toggleSorting(column.getIsSorted() === 'asc')
     })
   },
-  cell: ({ row }) => h('div', { class: 'lowercase' }, row.getValue('email'))
+  cell: ({ row }) => h('div', { 
+    class: 'font-medium text-gray-900 dark:text-gray-100 max-w-[200px] truncate',
+    title: row.getValue('title') 
+  }, row.getValue('title')),
+  minSize: 150
 }, {
-  accessorKey: 'amount',
-  header: () => h('div', { class: 'text-right' }, 'Amount'),
+  accessorKey: 'author',
+  header: ({ column }) => {
+    const isSorted = column.getIsSorted()
+    return h(UButton, {
+      color: 'neutral',
+      variant: 'ghost',
+      label: 'Autor',
+      icon: isSorted ? (isSorted === 'asc' ? 'i-lucide-arrow-up-narrow-wide' : 'i-lucide-arrow-down-wide-narrow') : 'i-lucide-arrow-up-down',
+      class: '-mx-2.5 text-left justify-start',
+      onClick: () => column.toggleSorting(column.getIsSorted() === 'asc')
+    })
+  },
+  cell: ({ row }) => h('div', { 
+    class: 'text-gray-600 dark:text-gray-400 max-w-[150px] truncate',
+    title: row.getValue('author')
+  }, row.getValue('author')),
+  minSize: 120
+}, {
+  accessorKey: 'year',
+  header: 'Año',
+  cell: ({ row }) => h('div', { class: 'text-center' }, row.getValue('year')),
+  size: 80
+}, {
+  accessorKey: 'rating',
+  header: 'Rating',
   cell: ({ row }) => {
-    const amount = Number.parseFloat(row.getValue('amount'))
-
-    const formatted = new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'EUR'
-    }).format(amount)
-
-    return h('div', { class: 'text-right font-medium' }, formatted)
-  }
+    const rating = row.getValue('rating') as number
+    const stars = '★'.repeat(rating) + '☆'.repeat(5 - rating)
+    return h('div', { 
+      class: 'text-yellow-500 text-center font-mono',
+      title: `${rating}/5 estrellas`
+    }, stars)
+  },
+  size: 100
+}, {
+  accessorKey: 'status',
+  header: 'Estado',
+  cell: ({ row }) => {
+    const status = row.getValue('status') as string
+    const statusConfig = {
+      'read': { color: 'success' as const, label: 'Leído' },
+      'reading': { color: 'warning' as const, label: 'Leyendo' },
+      'to-read': { color: 'neutral' as const, label: 'Por leer' }
+    }
+    
+    const config = statusConfig[status as keyof typeof statusConfig] || { color: 'neutral' as const, label: status }
+    
+    return h(UBadge, { 
+      variant: 'subtle', 
+      color: config.color,
+      class: 'text-xs'
+    }, () => config.label)
+  },
+  size: 100
+}, {
+  accessorKey: 'dateAdded',
+  header: 'Agregado',
+  cell: ({ row }) => {
+    const date = new Date(row.getValue('dateAdded'))
+    return h('div', { 
+      class: 'text-sm text-gray-500 dark:text-gray-400',
+      title: date.toLocaleString('es-ES')
+    }, date.toLocaleDateString('es-ES', {
+      day: 'numeric',
+      month: 'short'
+    }))
+  },
+  size: 100
 }, {
   id: 'actions',
   enableHiding: false,
   cell: ({ row }) => {
+    const book = row.original as Book
     const items = [{
       type: 'label',
-      label: 'Actions'
+      label: 'Acciones'
     }, {
-      label: 'Copy payment ID',
+      label: 'Copiar ID',
+      icon: 'i-lucide-copy',
       onSelect() {
-        copy(row.original.id)
-
+        copy(book.id.toString())
         toast.add({
-          title: 'Payment ID copied to clipboard!',
-          color: 'success',
+          title: 'ID copiado',
+          description: 'El ID del libro se copió al portapapeles',
+          color: 'success' as const,
           icon: 'i-lucide-circle-check'
         })
       }
     }, {
-      label: row.getIsExpanded() ? 'Collapse' : 'Expand',
+      label: 'Ver detalles',
+      icon: 'i-lucide-eye',
+      onSelect() {
+        // Navegar a detalles del libro
+        console.log('Ver detalles de:', book.title)
+      }
+    }, {
+      label: row.getIsExpanded() ? 'Colapsar' : 'Expandir',
+      icon: row.getIsExpanded() ? 'i-lucide-chevron-up' : 'i-lucide-chevron-down',
       onSelect() {
         row.toggleExpanded()
       }
     }, {
       type: 'separator'
     }, {
-      label: 'View customer'
+      label: 'Editar',
+      icon: 'i-lucide-edit',
+      onSelect() {
+        console.log('Editar libro:', book.title)
+      }
     }, {
-      label: 'View payment details'
+      label: 'Eliminar',
+      icon: 'i-lucide-trash-2',
+      class: 'text-red-600 dark:text-red-400',
+      onSelect() {
+        console.log('Eliminar libro:', book.title)
+      }
     }]
 
     return h('div', { class: 'text-right' }, h(UDropdownMenu, {
@@ -248,79 +223,221 @@ const columns: TableColumn<Payment>[] = [{
         align: 'end'
       },
       items,
-      'aria-label': 'Actions dropdown'
+      'aria-label': 'Menú de acciones'
     }, () => h(UButton, {
       'icon': 'i-lucide-ellipsis-vertical',
       'color': 'neutral',
       'variant': 'ghost',
+      'size': 'sm',
       'class': 'ml-auto',
-      'aria-label': 'Actions dropdown'
+      'aria-label': 'Menú de acciones'
     })))
-  }
+  },
+  size: 60
 }]
 
 const table = useTemplateRef('table')
+const searchQuery = ref('')
+
+// Filtrar libros por título o autor
+const filteredBooks = computed(() => {
+  if (!searchQuery.value) return books.value
+  
+  const query = searchQuery.value.toLowerCase()
+  return books.value.filter(book => 
+    book.title.toLowerCase().includes(query) ||
+    book.author.toLowerCase().includes(query)
+  )
+})
 
 function randomize() {
-  data.value = [...data.value].sort(() => Math.random() - 0.5)
+  books.value = [...books.value].sort(() => Math.random() - 0.5)
+}
+
+function clearSelection() {
+  table.value?.tableApi?.resetRowSelection()
 }
 </script>
 
 <template>
-  <div class="flex justify-center w-full">
-    <div class="flex flex-col items-center justify-center min-h-screen max-w-4xl">
-      <h1 class="text-4xl font-bold text-center mb-8">Mi Biblioteca</h1>
-
-      <div class="flex items-center gap-2 px-4 py-3.5 overflow-x-auto">
-        <UInput
-          :model-value="(table?.tableApi?.getColumn('email')?.getFilterValue() as string)"
-          class="max-w-sm min-w-[12ch]"
-          placeholder="Filter emails..."
-          @update:model-value="table?.tableApi?.getColumn('email')?.setFilterValue($event)"
-        />
-  
-        <UButton color="neutral" label="Randomize" @click="randomize" />
-  
-        <UDropdownMenu
-          :items="table?.tableApi?.getAllColumns().filter(column => column.getCanHide()).map(column => ({
-            label: upperFirst(column.id),
-            type: 'checkbox' as const,
-            checked: column.getIsVisible(),
-            onUpdateChecked(checked: boolean) {
-              table?.tableApi?.getColumn(column.id)?.toggleVisibility(!!checked)
-            },
-            onSelect(e?: Event) {
-              e?.preventDefault()
-            }
-          }))"
-          :content="{ align: 'end' }"
-        >
-          <UButton
-            label="Columns"
-            color="neutral"
-            variant="outline"
-            trailing-icon="i-lucide-chevron-down"
-            class="ml-auto"
-            aria-label="Columns select dropdown"
-          />
-        </UDropdownMenu>
+  <div class="flex justify-center w-full min-h-screen p-4">
+    <div class="w-full max-w-7xl">
+      <!-- Header -->
+      <div class="text-center mb-8">
+        <h1 class="text-3xl md:text-4xl font-bold text-gray-900 dark:text-gray-100 mb-2">
+          Mi Biblioteca
+        </h1>
+        <p class="text-gray-600 dark:text-gray-400">
+          Gestiona tu colección personal de libros
+        </p>
       </div>
-  
-      <UTable
-        ref="table"
-        :data="data"
-        :columns="columns"
-        sticky
-        class="h-96"
-      >
-        <template #expanded="{ row }">
-          <pre>{{ row.original }}</pre>
-        </template>
-      </UTable>
-  
-      <div class="px-4 py-3.5 text-sm text-muted">
-        {{ table?.tableApi?.getFilteredSelectedRowModel().rows.length || 0 }} of
-        {{ table?.tableApi?.getFilteredRowModel().rows.length || 0 }} row(s) selected.
+
+      <!-- Actions Bar -->
+      <div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4 mb-6 shadow-sm">
+        <div class="flex flex-col sm:flex-row gap-4 sm:items-center sm:justify-between">
+          <!-- Search Input -->
+          <div class="flex-1 max-w-md">
+            <UInput
+              v-model="searchQuery"
+              placeholder="Buscar por título o autor..."
+              icon="i-lucide-search"
+              class="w-full"
+            />
+          </div>
+          
+          <!-- Action Buttons -->
+          <div class="flex gap-2 flex-wrap">
+            <UButton 
+              color="neutral" 
+              variant="outline"
+              icon="i-lucide-shuffle"
+              label="Aleatorio" 
+              @click="randomize"
+              size="sm"
+            />
+            
+            <UButton 
+              color="neutral" 
+              variant="outline"
+              icon="i-lucide-x-circle"
+              label="Limpiar selección" 
+              @click="clearSelection"
+              size="sm"
+            />
+            
+            <UButton 
+              color="primary"
+              icon="i-lucide-plus"
+              label="Agregar libro"
+              size="sm"
+              class="hidden sm:inline-flex"
+            />
+            
+            <!-- Mobile add button -->
+            <UButton 
+              color="primary"
+              icon="i-lucide-plus"
+              size="sm"
+              class="sm:hidden"
+              aria-label="Agregar libro"
+            />
+          </div>
+        </div>
+      </div>
+
+      <!-- Table Container -->
+      <div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm overflow-hidden">
+        <!-- Mobile Cards (visible only on small screens) -->
+        <div class="block md:hidden">
+          <div class="divide-y divide-gray-200 dark:divide-gray-700">
+            <div v-for="book in filteredBooks" :key="book.id" class="p-4">
+              <div class="flex items-start justify-between mb-3">
+                <div class="flex-1 min-w-0">
+                  <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100 truncate">
+                    {{ book.title }}
+                  </h3>
+                  <p class="text-sm text-gray-600 dark:text-gray-400">
+                    {{ book.author }} • {{ book.year }}
+                  </p>
+                </div>
+                <UDropdownMenu
+                  :items="[
+                    { type: 'label', label: 'Acciones' },
+                    { label: 'Ver detalles', icon: 'i-lucide-eye' },
+                    { label: 'Editar', icon: 'i-lucide-edit' },
+                    { type: 'separator' },
+                    { label: 'Eliminar', icon: 'i-lucide-trash-2', class: 'text-red-600' }
+                  ]"
+                >
+                  <UButton
+                    icon="i-lucide-ellipsis-vertical"
+                    color="neutral"
+                    variant="ghost"
+                    size="sm"
+                  />
+                </UDropdownMenu>
+              </div>
+              
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                  <UBadge 
+                    :color="book.status === 'read' ? 'success' : book.status === 'reading' ? 'warning' : 'neutral'"
+                    variant="subtle"
+                    size="xs"
+                  >
+                    {{ book.status === 'read' ? 'Leído' : book.status === 'reading' ? 'Leyendo' : 'Por leer' }}
+                  </UBadge>
+                  <span class="text-yellow-500 text-sm">
+                    {{ '★'.repeat(book.rating) + '☆'.repeat(5 - book.rating) }}
+                  </span>
+                </div>
+                <span class="text-xs text-gray-500 dark:text-gray-400">
+                  #{{ book.id }}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Desktop Table (hidden on small screens) -->
+        <div class="hidden md:block overflow-x-auto">
+          <UTable 
+            ref="table" 
+            :data="filteredBooks" 
+            :columns="columns" 
+            class="w-full"
+          >
+            <template #expanded="{ row }">
+              <div class="p-4 bg-gray-50 dark:bg-gray-900/50 border-t border-gray-200 dark:border-gray-700">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 text-sm">
+                  <div>
+                    <span class="font-medium text-gray-700 dark:text-gray-300">Género:</span>
+                    <span class="ml-2 text-gray-600 dark:text-gray-400">{{ row.original.genre }}</span>
+                  </div>
+                  <div>
+                    <span class="font-medium text-gray-700 dark:text-gray-300">Páginas:</span>
+                    <span class="ml-2 text-gray-600 dark:text-gray-400">{{ row.original.pages }}</span>
+                  </div>
+                  <div>
+                    <span class="font-medium text-gray-700 dark:text-gray-300">ISBN:</span>
+                    <span class="ml-2 text-gray-600 dark:text-gray-400 font-mono">{{ row.original.isbn }}</span>
+                  </div>
+                  <div>
+                    <span class="font-medium text-gray-700 dark:text-gray-300">Idioma:</span>
+                    <span class="ml-2 text-gray-600 dark:text-gray-400">{{ row.original.language }}</span>
+                  </div>
+                  <div>
+                    <span class="font-medium text-gray-700 dark:text-gray-300">Editorial:</span>
+                    <span class="ml-2 text-gray-600 dark:text-gray-400">{{ row.original.publisher }}</span>
+                  </div>
+                  <div>
+                    <span class="font-medium text-gray-700 dark:text-gray-300">Agregado:</span>
+                    <span class="ml-2 text-gray-600 dark:text-gray-400">{{ new Date(row.original.dateAdded).toLocaleDateString('es-ES') }}</span>
+                  </div>
+                </div>
+                <div v-if="row.original.review" class="mt-4">
+                  <span class="font-medium text-gray-700 dark:text-gray-300">Reseña:</span>
+                  <p class="mt-1 text-gray-600 dark:text-gray-400 italic">{{ row.original.review }}</p>
+                </div>
+              </div>
+            </template>
+          </UTable>
+        </div>
+
+        <!-- Footer Stats -->
+        <div class="px-4 py-3 bg-gray-50 dark:bg-gray-900/50 border-t border-gray-200 dark:border-gray-700">
+          <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 text-sm text-gray-600 dark:text-gray-400">
+            <div>
+              {{ table?.tableApi?.getFilteredSelectedRowModel().rows.length || 0 }} de
+              {{ filteredBooks.length }} libro(s) seleccionado(s)
+            </div>
+            <div class="flex items-center gap-4">
+              <span>Total: {{ books.length }} libros</span>
+              <span>•</span>
+              <span>Mostrando: {{ filteredBooks.length }}</span>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>

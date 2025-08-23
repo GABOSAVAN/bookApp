@@ -71,7 +71,7 @@ onUnmounted(() => {
     <!-- Contenido del libro -->
     <div v-else-if="currentBook" class="bg-blue my-2 rounded-lg shadow-lg p-6 max-w-4xl w-full">
       <!-- Información del libro -->
-      <div class="flex items-center flex-col md:flex-row sm gap-6">
+      <div class="flex items-center flex-col md:flex-row gap-6">
         <div class="w-full md:w-1/3 flex justify-center">
           <img 
             v-if="currentBook.coverUrl"

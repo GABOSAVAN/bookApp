@@ -7,25 +7,60 @@ const UButton = resolveComponent('UButton')
 const UCheckbox = resolveComponent('UCheckbox')
 const UBadge = resolveComponent('UBadge')
 const UDropdownMenu = resolveComponent('UDropdownMenu')
+const UInput = resolveComponent('UInput')
+const UTable = resolveComponent('UTable')
 
 const toast = useToast()
 
-// Usar el composable de Selection
 const {
   selections,
-  isLoading,
   error,
   stats,
   fetchUserLibrary,
-  updateBookReview,
   removeBookFromLibrary,
   refreshLibrary,
   checkAuthentication,
-  findSelectionByBookId,
-  clearSelections
 } = useSelection()
 
-// Definir las columnas de la tabla con el tipo correcto
+// Cargar la biblioteca del usuario usando useAsyncData para Server-Side Rendering (SSR)
+// Nuxt esperará a que esta función se complete antes de renderizar la página
+const { pending } = await useAsyncData(
+  'user-library-data',
+  async () => {
+    // Retornamos la data para que el estado de 'pending' funcione correctamente
+    if (checkAuthentication()) {
+      return await fetchUserLibrary()
+    }
+    return [] // Retornar un array vacío si no está autenticado
+  }
+)
+
+const table = ref()
+const searchQuery = ref('')
+const showOnlyWithReview = ref(false)
+
+const filteredSelections = computed(() => {
+  let filtered = selections || []
+  
+  if (searchQuery.value) {
+    const query = searchQuery.value.toLowerCase()
+    filtered = filtered.filter(selection => 
+      selection.book_id?.title?.toLowerCase().includes(query) ||
+      selection.book_id?.author?.toLowerCase().includes(query)
+    )
+  }
+  
+  if (showOnlyWithReview.value) {
+    filtered = filtered.filter(selection => 
+      selection.userReview && 
+      selection.userReview.description && 
+      selection.userReview.description.trim().length > 0
+    )
+  }
+  
+  return filtered
+})
+
 const columns: TableColumn<Selection>[] = [{
   id: 'select',
   header: ({ table }) => h(UCheckbox, {
@@ -43,7 +78,7 @@ const columns: TableColumn<Selection>[] = [{
   size: 40
 }, {
   accessorKey: 'title',
-  accessorFn: (row: Selection) => row.book_id.title,
+  accessorFn: (row: Selection) => row.book_id?.title,
   header: ({ column }) => {
     const isSorted = column.getIsSorted()
     return h(UButton, {
@@ -57,12 +92,12 @@ const columns: TableColumn<Selection>[] = [{
   },
   cell: ({ row }) => h('div', { 
     class: 'font-medium text-gray-900 dark:text-gray-100 max-w-[200px] truncate',
-    title: row.original.book_id.title 
-  }, row.original.book_id.title),
+    title: row.original.book_id?.title 
+  }, row.original.book_id?.title),
   minSize: 150
 }, {
   accessorKey: 'author',
-  accessorFn: (row: Selection) => row.book_id.author,
+  accessorFn: (row: Selection) => row.book_id?.author,
   header: ({ column }) => {
     const isSorted = column.getIsSorted()
     return h(UButton, {
@@ -76,8 +111,8 @@ const columns: TableColumn<Selection>[] = [{
   },
   cell: ({ row }) => h('div', { 
     class: 'text-gray-600 dark:text-gray-400 max-w-[150px] truncate',
-    title: row.original.book_id.author
-  }, row.original.book_id.author),
+    title: row.original.book_id?.author
+  }, row.original.book_id?.author),
   minSize: 120
 }, {
   accessorKey: 'rating',
@@ -124,8 +159,7 @@ const columns: TableColumn<Selection>[] = [{
       label: 'Ver detalles',
       icon: 'i-lucide-eye',
       onSelect() {
-        // Navegar a detalles del libro
-        console.log('Ver detalles de:', selection.book_id.title)
+        console.log('Ver detalles de:', selection.book_id?.title)
       }
     }, {
       label: row.getIsExpanded() ? 'Colapsar' : 'Expandir',
@@ -139,15 +173,14 @@ const columns: TableColumn<Selection>[] = [{
       label: 'Editar reseña',
       icon: 'i-lucide-edit',
       onSelect() {
-        console.log('Editar reseña:', selection.book_id.title)
-        // Aquí podrías abrir un modal para editar la reseña
+        console.log('Editar reseña:', selection.book_id?.title)
       }
     }, {
       label: 'Eliminar',
       icon: 'i-lucide-trash-2',
       class: 'text-red-600 dark:text-red-400',
       onSelect() {
-        handleRemoveBook(selection.book_id.id)
+        handleRemoveBook(selection.book_id?.id as string)
       }
     }]
 
@@ -169,38 +202,9 @@ const columns: TableColumn<Selection>[] = [{
   size: 60
 }]
 
-const table = useTemplateRef('table')
-const searchQuery = ref('')
-const showOnlyWithReview = ref(false)
-
-// Filtrar selections por título o autor y opcionalmente por reseña
-const filteredSelections = computed(() => {
-  let filtered = selections.value || []
-  
-  // Filtrar por query de búsqueda
-  if (searchQuery.value) {
-    const query = searchQuery.value.toLowerCase()
-    filtered = filtered.filter(selection => 
-      selection.book_id.title.toLowerCase().includes(query) ||
-      selection.book_id.author.toLowerCase().includes(query)
-    )
-  }
-  
-  // Filtrar por libros con reseña
-  if (showOnlyWithReview.value) {
-    filtered = filtered.filter(selection => 
-      selection.userReview && 
-      selection.userReview.description && 
-      selection.userReview.description.trim().length > 0
-    )
-  }
-  
-  return filtered
-})
-
 // Funciones de manejo
 async function randomize() {
-  if (selections.value && selections.value.length > 0) {
+  if (selections && selections.length > 0) {
     try {
       await refreshLibrary()
       toast.add({
@@ -234,24 +238,10 @@ async function handleRefresh() {
   }
 }
 
-// Cargar la biblioteca al montar el componente
-onMounted(async () => {
-  if (checkAuthentication()) {
-    try {
-      await fetchUserLibrary()
-      console.log('Selections cargadas:', selections.value)
-    } catch (error) {
-      console.error('Error al cargar biblioteca inicial:', error)
-    }
-  }
-})
-
-// Función para obtener el año de publicación
 function getPublicationYear(selection: Selection): number | string {
-  return selection.book_id.publication_date || selection.book_id.year || 'N/A'
+  return selection.book_id?.publication_date || selection.book_id?.year || 'N/A'
 }
 
-// Función para obtener el estado en español
 function getStatusLabel(status?: string): string {
   const statusMap = {
     'read': 'Leído',
@@ -261,7 +251,6 @@ function getStatusLabel(status?: string): string {
   return statusMap[status as keyof typeof statusMap] || 'Por leer'
 }
 
-// Función para obtener el color del badge según el estado
 function getStatusColor(status?: string): 'success' | 'warning' | 'neutral' {
   const colorMap = {
     'read': 'success' as const,
@@ -271,7 +260,6 @@ function getStatusColor(status?: string): 'success' | 'warning' | 'neutral' {
   return colorMap[status as keyof typeof colorMap] || 'neutral'
 }
 
-// Watchers para debugging
 watch(selections, (newSelections) => {
   console.log('Selections actualizadas:', newSelections)
 }, { deep: true })
@@ -284,7 +272,6 @@ watch(filteredSelections, (newFiltered) => {
 <template>
   <div class="flex justify-center w-full min-h-screen p-4">
     <div class="w-full max-w-7xl">
-      <!-- Header -->
       <div class="text-center mb-8">
         <h1 class="text-3xl md:text-4xl font-bold text-gray-900 dark:text-gray-100 mb-2">
           Mi Biblioteca
@@ -293,7 +280,6 @@ watch(filteredSelections, (newFiltered) => {
           Gestiona tu colección personal de libros
         </p>
         
-        <!-- Estadísticas -->
         <div v-if="stats && stats.total > 0" class="flex justify-center gap-6 mt-4 text-sm text-gray-600 dark:text-gray-400">
           <span>Total: {{ stats.total }}</span>
           <span>Leídos: {{ stats.read }}</span>
@@ -303,15 +289,13 @@ watch(filteredSelections, (newFiltered) => {
         </div>
       </div>
 
-      <!-- Loading State -->
-      <div v-if="isLoading" class="text-center py-12">
+      <div v-if="pending" class="text-center py-12">
         <div class="inline-flex items-center gap-2 text-gray-600 dark:text-gray-400">
-          <div class="animate-spin w-5 h-5 border-2 border-primary border-r-transparent rounded-full"></div>
+          <div class="animate-spin w-5 h-5 border-2 border-primary border-r-transparent rounded-full"/>
           Cargando biblioteca...
         </div>
       </div>
 
-      <!-- Error State -->
       <div v-else-if="error" class="text-center py-12">
         <div class="text-red-600 dark:text-red-400 mb-4">
           Error: {{ error }}
@@ -324,12 +308,9 @@ watch(filteredSelections, (newFiltered) => {
         />
       </div>
 
-      <!-- Main Content -->
       <template v-else>
-        <!-- Actions Bar -->
         <div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4 mb-6 shadow-sm">
           <div class="flex flex-col sm:flex-row gap-4 sm:items-center sm:justify-between">
-            <!-- Search Input -->
             <div class="flex-1 max-w-md">
               <UInput
                 v-model="searchQuery"
@@ -339,9 +320,7 @@ watch(filteredSelections, (newFiltered) => {
               />
             </div>
             
-            <!-- Filters and Action Buttons -->
             <div class="flex gap-2 flex-wrap items-center">
-              <!-- Review Filter Toggle -->
               <UButton 
                 :color="showOnlyWithReview ? 'primary' : 'neutral'" 
                 :variant="showOnlyWithReview ? 'solid' : 'outline'"
@@ -357,8 +336,8 @@ watch(filteredSelections, (newFiltered) => {
                 icon="i-lucide-shuffle"
                 label="Aleatorio" 
                 size="sm"
-                @click="randomize"
                 :disabled="!selections?.length"
+                @click="randomize"
               />
               
               <UButton 
@@ -387,7 +366,6 @@ watch(filteredSelections, (newFiltered) => {
                 class="hidden sm:inline-flex"
               />
               
-              <!-- Mobile add button -->
               <UButton 
                 color="primary"
                 icon="i-lucide-plus"
@@ -399,7 +377,6 @@ watch(filteredSelections, (newFiltered) => {
           </div>
         </div>
 
-        <!-- Empty State -->
         <div v-if="!selections?.length" class="text-center py-12">
           <div class="text-gray-500 dark:text-gray-400 mb-4">
             Tu biblioteca está vacía
@@ -411,35 +388,18 @@ watch(filteredSelections, (newFiltered) => {
           />
         </div>
 
-        <!-- Debug Info (remove in production) -->
-        <div v-if="process.dev" class="mb-4 p-4 bg-gray-100 dark:bg-gray-800 rounded text-sm">
-          <p>Debug Info:</p>
-          <p>Selections length: {{ selections?.length || 0 }}</p>
-          <p>Filtered length: {{ filteredSelections.length }}</p>
-          <p>Is Loading: {{ isLoading }}</p>
-          <p>Error: {{ error || 'None' }}</p>
-          <p>Search Query: "{{ searchQuery }}"</p>
-          <p>Show Only With Review: {{ showOnlyWithReview }}</p>
-          <details v-if="selections?.length">
-            <summary>First Selection:</summary>
-            <pre>{{ JSON.stringify(selections[0], null, 2) }}</pre>
-          </details>
-        </div>
-
-        <!-- Table Container -->
         <div v-else-if="filteredSelections.length > 0" class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm overflow-hidden">
          
-          <!-- Mobile Cards (visible only on small screens) -->
           <div class="block md:hidden">
             <div class="divide-y divide-gray-200 dark:divide-gray-700">
               <div v-for="selection in filteredSelections" :key="selection._id" class="p-4">
                 <div class="flex items-start justify-between mb-3">
                   <div class="flex-1 min-w-0">
                     <h3 class="text-lg font-medium text-gray-900 dark:text-gray-100 truncate">
-                      {{ selection.book_id.title }}
+                      {{ selection.book_id?.title }}
                     </h3>
                     <p class="text-sm text-gray-600 dark:text-gray-400">
-                      {{ selection.book_id.author }}
+                      {{ selection.book_id?.author }}
                     </p>
                   </div>
                   <UDropdownMenu
@@ -448,7 +408,7 @@ watch(filteredSelections, (newFiltered) => {
                       { label: 'Ver detalles', icon: 'i-lucide-eye' },
                       { label: 'Editar reseña', icon: 'i-lucide-edit' },
                       { type: 'separator' },
-                      { label: 'Eliminar', icon: 'i-lucide-trash-2', class: 'text-red-600', onSelect: () => handleRemoveBook(selection.book_id.id) }
+                      { label: 'Eliminar', icon: 'i-lucide-trash-2', class: 'text-red-600', onSelect: () => handleRemoveBook(selection.book_id?.id as string) }
                     ]"
                   >
                     <UButton
@@ -481,7 +441,6 @@ watch(filteredSelections, (newFiltered) => {
             </div>
           </div>
 
-          <!-- Desktop Table (hidden on small screens) -->
           <div class="hidden md:block overflow-x-auto">
             <UTable 
               ref="table" 
@@ -497,27 +456,27 @@ watch(filteredSelections, (newFiltered) => {
                       <span class="ml-2 text-gray-600 dark:text-gray-400">{{ getPublicationYear(row.original) }}</span>
                     </div>
                     
-                    <div v-if="row.original.book_id.genre">
+                    <div v-if="row.original.book_id?.genre">
                       <span class="font-medium text-gray-700 dark:text-gray-300">Género:</span>
                       <span class="ml-2 text-gray-600 dark:text-gray-400">{{ row.original.book_id.genre }}</span>
                     </div>
                     
-                    <div v-if="row.original.book_id.pages">
+                    <div v-if="row.original.book_id?.pages">
                       <span class="font-medium text-gray-700 dark:text-gray-300">Páginas:</span>
                       <span class="ml-2 text-gray-600 dark:text-gray-400">{{ row.original.book_id.pages }}</span>
                     </div>
                     
-                    <div v-if="row.original.book_id.isbn">
+                    <div v-if="row.original.book_id?.isbn">
                       <span class="font-medium text-gray-700 dark:text-gray-300">ISBN:</span>
                       <span class="ml-2 text-gray-600 dark:text-gray-400 font-mono">{{ row.original.book_id.isbn }}</span>
                     </div>
                     
-                    <div v-if="row.original.book_id.language">
+                    <div v-if="row.original.book_id?.language">
                       <span class="font-medium text-gray-700 dark:text-gray-300">Idioma:</span>
                       <span class="ml-2 text-gray-600 dark:text-gray-400">{{ row.original.book_id.language }}</span>
                     </div>
                     
-                    <div v-if="row.original.book_id.publisher">
+                    <div v-if="row.original.book_id?.publisher">
                       <span class="font-medium text-gray-700 dark:text-gray-300">Editorial:</span>
                       <span class="ml-2 text-gray-600 dark:text-gray-400">{{ row.original.book_id.publisher }}</span>
                     </div>
@@ -537,7 +496,6 @@ watch(filteredSelections, (newFiltered) => {
             </UTable>
           </div>
 
-          <!-- Footer Stats -->
           <div class="px-4 py-3 bg-gray-50 dark:bg-gray-900/50 border-t border-gray-200 dark:border-gray-700">
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 text-sm text-gray-600 dark:text-gray-400">
               <div>
@@ -551,13 +509,11 @@ watch(filteredSelections, (newFiltered) => {
               </div>
             </div>
           </div>
-
         </div>
 
-        <!-- No Results State -->
         <div v-else class="text-center py-12">
           <div class="text-gray-500 dark:text-gray-400 mb-4">
-            {{ searchQuery ? 'No se encontraron libros con esos criterios' : 'No hay libros que mostrar' }}
+            {{ searchQuery || showOnlyWithReview ? 'No se encontraron libros con esos criterios' : 'No hay libros que mostrar' }}
           </div>
           <UButton 
             v-if="searchQuery || showOnlyWithReview"
@@ -566,8 +522,11 @@ watch(filteredSelections, (newFiltered) => {
             label="Limpiar filtros"
             @click="() => { searchQuery = ''; showOnlyWithReview = false }"
           />
-        </div>
+        </div>        
       </template>
+      <h1>
+        {{ selections[8] }}
+      </h1>
     </div>
   </div>
 </template>

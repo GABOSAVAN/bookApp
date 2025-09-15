@@ -123,7 +123,7 @@ onUnmounted(() => {
         <div class="space-y-4 max-h-60 overflow-y-auto">
           <div 
             v-for="review in reviews" 
-            :key="review.id"
+            :key="review._id"
             class="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg"
           >
             <div class="flex justify-between items-start mb-2">

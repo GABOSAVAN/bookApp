@@ -3,11 +3,13 @@
   import { storeToRefs } from 'pinia';
   import { useAuthStore } from '~/stores/auth';
   import { useBookDetailStore } from '~/stores/bookDetail';
-
+  import { useSelection } from '~/composables/useSelection'
 
   const authStore = useAuthStore(); 
 
   const toast = useToast()
+
+  const Selection = useSelection()
 
   const { isAuthenticated, token } = storeToRefs(authStore);  
 
@@ -52,6 +54,7 @@
       });
 
       if(response.status == 201){
+        Selection.fetchUserLibrary()
         toast.add({ 
                   description: 'Libro agregado a tu seleccion.',
                   color: 'success', // o el prop que uses para el tipo

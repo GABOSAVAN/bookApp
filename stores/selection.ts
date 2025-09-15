@@ -53,6 +53,17 @@ export const useSelectionStore = defineStore('selection', () => {
     error.value = null
   }
 
+  // Añadir una nueva selección al array ---
+  function addSelection(newSelection: Selection) {
+    // Si el libro ya existe, lo actualizamos. Si no, lo agregamos.
+    const existingIndex = selections.value.findIndex(s => s._id === newSelection._id);
+    if (existingIndex > -1) {
+        selections.value.splice(existingIndex, 1, newSelection);
+    } else {
+        selections.value.push(newSelection);
+    }
+  }
+
   function setLoading(loading: boolean) {
     status.value = loading ? 'loading' : 'idle'
   }
@@ -131,6 +142,7 @@ export const useSelectionStore = defineStore('selection', () => {
     
     // Acciones
     setSelections,
+    addSelection,
     setLoading,
     setError,
     clearError,

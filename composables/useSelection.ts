@@ -2,6 +2,7 @@
 import { useAuthStore } from '~/stores/auth'
 import { useSelectionStore } from '~/stores/selection'
 import type { Review, Selection, ApiSelection, ReviewUpdatePayload } from '~/types/book'
+import { storeToRefs } from 'pinia'
 
 export const useSelection = () => {
   const config = useRuntimeConfig()
@@ -213,12 +214,14 @@ export const useSelection = () => {
     return true
   }
 
+  const { selections, isLoading, error, stats } = storeToRefs(selectionStore)
+
   return {
     // Estado del store (sin readonly, ya son reactivos)
-    selections: selectionStore.selections,
-    isLoading: selectionStore.isLoading,
-    error: selectionStore.error,
-    stats: selectionStore.stats,
+    selections,
+    isLoading,
+    error,
+    stats,
     
     // Métodos principales
     fetchUserLibrary,

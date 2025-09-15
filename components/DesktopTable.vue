@@ -23,23 +23,24 @@ function getPublicationYear(selection: Selection): number | string {
   return selection.book_id?.publication_date || selection.book_id?.year || 'N/A'
 }
 
-function getStatusColor(status?: string): 'success' | 'warning' | 'neutral' {
-  const colorMap = {
-    'read': 'success' as const,
-    'reading': 'warning' as const,
-    'to-read': 'neutral' as const
-  }
-  return colorMap[status as keyof typeof colorMap] || 'neutral'
-}
+// TODO: mover a un archivo de utils
+// function getStatusColor(status?: string): 'success' | 'warning' | 'neutral' {
+//   const colorMap = {
+//     'read': 'success' as const,
+//     'reading': 'warning' as const,
+//     'to-read': 'neutral' as const
+//   }
+//   return colorMap[status as keyof typeof colorMap] || 'neutral'
+// }
 
-function getStatusLabel(status?: string): string {
-  const statusMap = {
-    'read': 'Leído',
-    'reading': 'Leyendo',
-    'to-read': 'Por leer'
-  }
-  return statusMap[status as keyof typeof statusMap] || 'Por leer'
-}
+// function getStatusLabel(status?: string): string {
+//   const statusMap = {
+//     'read': 'Leído',
+//     'reading': 'Leyendo',
+//     'to-read': 'Por leer'
+//   }
+//   return statusMap[status as keyof typeof statusMap] || 'Por leer'
+// }
 
 const columns: TableColumn<Selection>[] = [{
   id: 'select',

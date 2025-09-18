@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue';
+import { storeToRefs } from 'pinia';
 import { useBooks } from '~/composables/useBooks';
 
 const store = useBooksStore();
@@ -13,9 +14,11 @@ const {
 } = storeToRefs(store);
 
 const { searchBooks } = useBooks();
+
+const STORAGE_KEY = 'lastSearches';
   
 // Define las últimas 5 búsquedas como un array de strings.
-const lastSearches = ref(['Backlog', 'Todo', 'In Progress', 'Done', 'Another search']);
+const lastSearches = ref<string[]>([]);
 
 // Define la variable que contendrá el valor del input de búsqueda.
 const searchValue = ref('');
@@ -26,8 +29,32 @@ const showSuggestions = ref(false);
 // Variable para el índice de la sugerencia seleccionada (para navegación con teclado).
 const selectedIndex = ref(-1);
 
+// --- Funciones de LocalStorage ---
+const loadLastSearches = () => {
+  const storedSearches = localStorage.getItem(STORAGE_KEY);
+  if (storedSearches) {
+    try {
+      lastSearches.value = JSON.parse(storedSearches);
+    } catch (e) {
+      console.error('Error al parsear las búsquedas guardadas', e);
+      lastSearches.value = [];
+    }
+  }
+};
+
+const saveLastSearch = (query: string) => {
+  // Asegurarse de que el query no esté vacío
+  if (!query) return;
+
+  // Filtrar si ya existe para evitar duplicados y mantener solo las últimas 5
+  const newSearches = [query, ...lastSearches.value.filter(s => s !== query)].slice(0, 5);
+  lastSearches.value = newSearches;
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(newSearches));
+};
+
 // Al montar el componente, restaurar el valor de búsqueda si existe
 onMounted(() => {
+  loadLastSearches();
   if (currentQuery) {
     searchValue.value = currentQuery.value;
   }
@@ -35,7 +62,7 @@ onMounted(() => {
 
 // Maneja la visibilidad del cuadro de sugerencias
 const handleInputFocus = () => {
-  showSuggestions.value = true;
+  showSuggestions.value = !showSuggestions.value;
 };
 
 const handleInputBlur = () => {
@@ -47,7 +74,8 @@ const handleInputBlur = () => {
 
 const selectSuggestion = (suggestion: string) => {
   searchValue.value = suggestion;
-  showSuggestions.value = false;
+  // showSuggestions.value = false;
+  handleInputFocus();
   handleSearch();
 };
 
@@ -68,20 +96,15 @@ const handleKeyDown = (event: KeyboardEvent) => {
 };
 
 const handleSearch = async () => {
-  if (searchValue.value) {
+  const query = searchValue.value.trim();
+  if (query) {
     
     try {
-      // console.log(`Buscando libros con el término: ${searchValue.value}`);
-      await searchBooks(searchValue.value.trim());
-      
-      // Agregar a las últimas búsquedas si no existe
-       if (!lastSearches.value.includes(searchValue.value)) {
-         lastSearches.value.unshift(searchValue.value);
-        //  Mantener solo las últimas 5 búsquedas
-         if (lastSearches.value.length > 5) {
-           lastSearches.value = lastSearches.value.slice(0, 5);
-         }
-       }
+      if(showSuggestions.value == true){
+        handleInputFocus()
+      }
+      await searchBooks(query);
+      saveLastSearch(query);
     } catch (err) {
       console.error('Error searching books:', err);
     }
@@ -162,7 +185,7 @@ const handleClearSearch = () => {
     <BookList
      v-if="searchResults.length > 0 
      && !loading"
-     :books="searchResults" class="mt-8"
+     :books="[...searchResults]" class="mt-8"
      />
   </div>
 </template>

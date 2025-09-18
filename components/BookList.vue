@@ -6,7 +6,7 @@ const props = defineProps<{
     id: string;
     title: string;
     author: string;
-    coverUrl: string;
+    coverUrl?: string;
   }>;
 }>();
 

@@ -53,7 +53,7 @@ const isMobileMenuOpen = ref(false);
         >
           {{ link.label }}
         </NuxtLink>
-        <ThemeSwitcher /> 
+        <UiThemeSwitcher /> 
         <AuthButtons />
       </nav>
 
@@ -91,7 +91,7 @@ const isMobileMenuOpen = ref(false);
           {{ link.label }}
         </NuxtLink>
         <div class="flex justify-center mt-2">
-          <ThemeSwitcher />          
+          <UiThemeSwitcher />          
         </div>
         <div class="flex justify-center mt-2">
           <AuthButtons />

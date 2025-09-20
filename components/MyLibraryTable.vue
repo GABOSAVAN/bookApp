@@ -67,9 +67,9 @@ const hasData = computed(() => {
         <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
           <thead class="bg-gray-50 dark:bg-gray-900/50">
             <tr>
-              <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider w-10">
+              <!-- <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider w-10">
                 <UCheckbox />
-              </th>
+              </th> -->
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                 Título
               </th>
@@ -90,9 +90,9 @@ const hasData = computed(() => {
           <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
             <tr v-for="selection in props.data" :key="selection._id" class="hover:bg-gray-50 dark:hover:bg-gray-900/50">
               <!-- Checkbox -->
-              <td class="px-6 py-4 whitespace-nowrap">
+              <!-- <td class="px-6 py-4 whitespace-nowrap">
                 <UCheckbox />
-              </td>
+              </td> -->
               
               <!-- Título -->
               <td class="px-6 py-4 whitespace-nowrap">

@@ -110,7 +110,8 @@ export const useSelection = () => {
         headers: getAuthHeaders(),
         body: {
           description: reviewData.description.trim(),
-          rating: reviewData.rating
+          rating: reviewData.rating,
+          status: reviewData.status
         }
       })
 

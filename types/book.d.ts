@@ -49,6 +49,7 @@ interface ReviewUpdatePayload {
   private?: boolean
   description: string
   rating: number
+  status?: 'read' | 'reading' | 'to-read'
 }
 
 interface ApiSelection {

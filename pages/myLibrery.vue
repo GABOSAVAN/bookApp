@@ -1,12 +1,10 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import { useSelection } from '~/composables/useSelection'
-
-// Importa el nuevo componente
 import MyLibraryTable from '~/components/MyLibraryTable.vue'
+import BookReviewModal from '~/components/BookReviewModal.vue'
+import type { Selection } from '~/types/book'
 
-const UInput = resolveComponent('UInput')
-const UButton = resolveComponent('UButton')
 const toast = useToast()
 
 const {
@@ -22,7 +20,15 @@ const {
 const isClient = ref(false)
 const isFetching = ref(true)
 
-// Lógica de carga de datos en el cliente
+const isReviewModalOpen = ref(false)
+const selectedBookForReview = ref<Selection | null>(null)
+
+const handleEditReview = (selection: Selection) => {
+  console.log("Abriendo modal para:", selection.book_id?.title)
+  selectedBookForReview.value = selection
+  isReviewModalOpen.value = true
+}
+
 onMounted(async () => {
   if (checkAuthentication()) {
     isFetching.value = true
@@ -37,11 +43,9 @@ onMounted(async () => {
   }
 })
 
-// Variables de estado para los filtros
 const searchQuery = ref('')
 const showOnlyWithReview = ref(false)
 
-// Lógica de filtrado
 const filteredSelections = computed(() => {
   let filtered = selections.value || []
 
@@ -64,7 +68,6 @@ const filteredSelections = computed(() => {
   return filtered
 })
 
-// Funciones para manejar los eventos
 async function randomize() {
   if (selections.value && selections.value.length > 0) {
     try {
@@ -168,7 +171,11 @@ async function handleRefresh() {
             </div>
 
             <div v-else-if="filteredSelections.length > 0" class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm overflow-hidden">
-              <MyLibraryTable :data="filteredSelections" :remove-book-from-library="removeBookFromLibrary" />
+              <MyLibraryTable
+               :data="filteredSelections"
+               :remove-book-from-library="removeBookFromLibrary"
+               @edit-review="handleEditReview"
+               />
             </div>
 
             <div v-else class="text-center py-12">
@@ -182,6 +189,12 @@ async function handleRefresh() {
           </template>
         </div>
       </div>
-    </ClientOnly>
+    </ClientOnly>    
+
+    <!-- Modal fuera del ClientOnly y del contenedor principal -->
+    <BookReviewModal
+      v-model="isReviewModalOpen"
+      :selection-data="selectedBookForReview"
+    />
   </div>
 </template>

@@ -2,7 +2,7 @@
 const Toaster = { position: 'top-right' as const}
 </script>
 <template>   
-  <UApp :toaster="Toaster">
+    <UApp :toaster="Toaster">
     <div>     
       <AppHeader />         
       <main>       

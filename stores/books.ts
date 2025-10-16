@@ -38,11 +38,11 @@ export const useBooksStore = defineStore('books', () => {
   
   return {
     // Estado (readonly para evitar mutaciones directas)
-    searchResults: readonly(searchResults),
-    currentQuery: readonly(currentQuery),
-    loading: readonly(loading),
-    error: readonly(error),
-    hasSearched: readonly(hasSearched),
+    searchResults,
+    currentQuery,
+    loading,
+    error,
+    hasSearched,
     
     // Getters
     hasResults,

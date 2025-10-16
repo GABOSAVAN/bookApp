@@ -2,8 +2,6 @@
 import { ref, computed } from 'vue';
 import { useAuthStore } from '~/stores/auth';
 import { storeToRefs } from 'pinia';
-
-// Importa useRoute
 import { useRoute } from 'vue-router';
 
 // Accede al store de autenticación
@@ -39,31 +37,37 @@ const isMobileMenuOpen = ref(false);
 </script>
 
 <template>
-  <header class="bg-gray-800 text-white p-4">
-    <div class="container mx-auto flex items-center justify-between">
-      <NuxtLink to="/" class="text-2xl font-bold">Book Reviews App</NuxtLink>
+  <div class="app-header-wrapper">
+    <div class="bg-gray-800 text-white p-4">
+      <header> <div class="container mx-auto flex items-center justify-between">
+          <NuxtLink to="/" class="text-2xl font-bold">Book Reviews App</NuxtLink>
 
-      <nav class="hidden md:flex items-center space-x-4">
-        <NuxtLink
-          v-for="link in visibleLinks"
-          :key="link.to"
-          :to="link.to"
-          active-class="font-bold border-b-2 border-white"
-          class="hover:text-gray-300 transition-colors duration-200"
-        >
-          {{ link.label }}
-        </NuxtLink>
-        <UiThemeSwitcher /> 
-        <AuthButtons />
-      </nav>
+          <nav class="hidden md:flex items-center space-x-4">
+            <NuxtLink
+              v-for="link in visibleLinks"
+              :key="link.to"
+              :to="link.to"
+              active-class="font-bold border-b-2 border-white"
+              class="hover:text-gray-300 transition-colors duration-200"
+            >
+              {{ link.label }}
+            </NuxtLink>
+            
+            <div>
+              <UiThemeSwitcher /> 
+            </div>
+            <AuthButtons />
+          </nav>
 
-      <UButton
-        icon="i-heroicons-bars-3-solid"
-        color="neutral"
-        variant="solid"
-        class="md:hidden"
-        @click="isMobileMenuOpen = true"
-      />
+          <UButton
+            icon="i-heroicons-bars-3-solid"
+            color="neutral"
+            variant="solid"
+            class="md:hidden"
+            @click="isMobileMenuOpen = true"
+          />
+        </div>
+      </header>
     </div>
 
     <div
@@ -91,7 +95,7 @@ const isMobileMenuOpen = ref(false);
           {{ link.label }}
         </NuxtLink>
         <div class="flex justify-center mt-2">
-          <UiThemeSwitcher />          
+          <UiThemeSwitcher />
         </div>
         <div class="flex justify-center mt-2">
           <AuthButtons />
@@ -104,5 +108,5 @@ const isMobileMenuOpen = ref(false);
       class="fixed inset-0 z-40 bg-black opacity-50 md:hidden"
       @click="isMobileMenuOpen = false"
     />
-  </header>
+  </div>
 </template>

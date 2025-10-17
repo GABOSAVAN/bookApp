@@ -72,7 +72,7 @@ export const useSelection = () => {
       // Actualizar el store
       selectionStore.setSelections(transformedSelections)
       
-      console.log('Biblioteca cargada exitosamente:', transformedSelections.length, 'libros')
+      // console.log('Biblioteca cargada exitosamente:', transformedSelections.length, 'libros')
       return transformedSelections
 
     } catch (error) {

@@ -128,27 +128,13 @@ export const useSelection = () => {
       // Actualizar el store local
       selectionStore.updateBookReview(bookId, updatedReview)
 
-      toast.add({
-        title: 'Éxito',
-        description: 'Reseña actualizada correctamente',
-        color: 'success',
-        orientation: 'horizontal'
-      })
-
-      console.log('Review actualizada exitosamente para el libro:', bookId)
       return updatedReview
 
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Error al actualizar la reseña'
       console.error('Error al actualizar review:', error)
       
-      selectionStore.setError(errorMessage)
-      toast.add({
-        title: 'Error',
-        description: 'No se pudo actualizar la reseña',
-        color: 'error',
-        orientation: 'horizontal'
-      })
+      selectionStore.setError(errorMessage)      
       
       throw error
     }
@@ -157,6 +143,7 @@ export const useSelection = () => {
   // Eliminar un libro de la biblioteca (si existiera este endpoint)
   const removeBookFromLibrary = async (bookId: string): Promise<void> => {
     try {
+
       // Nota: Este endpoint no está especificado en los requerimientos
       // pero podría ser útil para futuras funcionalidades
       const url = `${config.public.apiBase}books/my-library/${bookId}`

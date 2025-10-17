@@ -1,20 +1,21 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed } from 'vue'
 import type { Selection } from '~/types/book'
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
 
+// 1. PROPS: Recibe los datos y la función de eliminación del padre.
 const props = defineProps<{
   data: Selection[]
-  removeBookFromLibrary: (bookId: string) => Promise<void>
+  // Función recibida que ejecutará la lógica de useSelection.removeBookFromLibrary
+  removeBookFromLibrary: (bookId: string) => Promise<void> 
 }>()
 
-console.log("MyLibraryTable - props data:", props.data)
-
+// 2. EMITS: Declara el evento para notificar al padre sobre la edición.
 const emit = defineEmits(['edit-review'])
 
-const selectedRows = ref([])
+// --- Funciones de Presentación (Formato y Estilo) ---
 
 function getPublicationYear(selection: Selection): number | string {
   return selection.book_id?.publication_date || selection.book_id?.year || 'N/A'
@@ -38,20 +39,35 @@ function getStatusColor(status?: string): 'success' | 'warning' | 'neutral' {
   return colorMap[status as keyof typeof colorMap] || 'neutral'
 }
 
-// Verificar si hay data disponible
 const hasData = computed(() => {
-  const result = props.data && props.data.length > 0
-  console.log("MyLibraryTable - hasData:", result, "length:", props.data?.length)
-  return result
+  return props.data && props.data.length > 0
 })
 
-// Actions para cada libro - ELIMINADO ya que usaremos UDropdownMenu directamente
+// --- Lógica de Acciones (Delegación) ---
+
+/**
+ * 💡 FUNCIÓN DE ELIMINACIÓN OPERATIVA
+ * Llama a la función recibida por props, que a su vez llama a useSelection.removeBookFromLibrary.
+ */
+const handleRemoveBook = (bookId: string | undefined) => {
+  console.log("Eliminando libro con ID:", bookId);
+    if (!bookId) return;
+    props.removeBookFromLibrary(bookId);
+}
+
+/**
+ * 💡 FUNCIÓN DE EDICIÓN OPERATIVA
+ * Emite un evento, pasando el objeto de selección completo. El componente padre
+ * (donde se usa useSelection) manejará la lógica de actualización (updateBookReview).
+ */
+const handleEditReview = (selection: Selection) => {
+    emit('edit-review', selection);
+}
 </script>
 
 <template>
   <div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm overflow-hidden">      
 
-    <!-- Mostrar mensaje cuando no hay data -->
     <div v-if="!hasData" class="p-8 text-center">
       <div class="text-gray-500 dark:text-gray-400">
         <Icon name="i-lucide-book-open" class="w-12 h-12 mx-auto mb-4 opacity-50" />
@@ -60,16 +76,11 @@ const hasData = computed(() => {
       </div>
     </div>
 
-    <!-- Contenido principal cuando hay datos -->
     <template v-else>
-      <!-- Tabla para desktop usando tabla HTML simple -->
       <div class="hidden md:block overflow-x-auto">
         <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
           <thead class="bg-gray-50 dark:bg-gray-900/50">
             <tr>
-              <!-- <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider w-10">
-                <UCheckbox />
-              </th> -->
               <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                 Título
               </th>
@@ -89,12 +100,7 @@ const hasData = computed(() => {
           </thead>
           <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
             <tr v-for="selection in props.data" :key="selection._id" class="hover:bg-gray-50 dark:hover:bg-gray-900/50">
-              <!-- Checkbox -->
-              <!-- <td class="px-6 py-4 whitespace-nowrap">
-                <UCheckbox />
-              </td> -->
               
-              <!-- Título -->
               <td class="px-6 py-4 whitespace-nowrap">
                 <div 
                   class="font-medium text-gray-900 dark:text-gray-100 max-w-[200px] truncate" 
@@ -104,7 +110,6 @@ const hasData = computed(() => {
                 </div>
               </td>
               
-              <!-- Autor -->
               <td class="px-6 py-4 whitespace-nowrap">
                 <div 
                   class="text-gray-600 dark:text-gray-400 max-w-[150px] truncate" 
@@ -114,14 +119,12 @@ const hasData = computed(() => {
                 </div>
               </td>
               
-              <!-- Rating -->
               <td class="px-6 py-4 whitespace-nowrap text-center">
                 <div class="text-yellow-500 font-mono" :title="`${selection.userReview?.rating || 0}/5 estrellas`">
                   {{ '★'.repeat(selection.userReview?.rating || 0) + '☆'.repeat(5 - (selection.userReview?.rating || 0)) }}
                 </div>
               </td>
               
-              <!-- Estado -->
               <td class="px-6 py-4 whitespace-nowrap">
                 <UBadge
                   :color="getStatusColor(selection.status)"
@@ -132,15 +135,16 @@ const hasData = computed(() => {
                 </UBadge>
               </td>
               
-              <!-- Acciones -->
               <td class="px-6 py-4 whitespace-nowrap text-right">
                 <UDropdownMenu 
                   :items="[
                     { type: 'label', label: 'Acciones' },
-                    { label: 'Ver detalles', icon: 'i-lucide-eye', click: () => router.push(`/detailBook/${selection.book_id?.id}`) },
+                    { label: 'Ver detalles', icon: 'i-lucide-eye', onSelect: () => router.push(`/detailBook/${selection.book_id?.id}`) },
                     { type: 'separator' },
-                    { label: 'Editar reseña', icon: 'i-lucide-edit', onSelect: () => emit('edit-review', selection) },
-                    { label: 'Eliminar', icon: 'i-lucide-trash-2', click: () => props.removeBookFromLibrary(selection.book_id?.id as string), class: 'text-red-600 dark:text-red-400' }
+                    // Edición: Emite el evento 'edit-review' al padre.
+                    { label: 'Editar reseña', icon: 'i-lucide-edit', onSelect: () => handleEditReview(selection) },
+                    // Eliminación: Llama a la función del padre.
+                    { label: 'Eliminar', icon: 'i-lucide-trash-2', onSelect: () => handleRemoveBook(selection.book_id?.id), class: 'text-red-600 dark:text-red-400' }
                   ]"
                 >
                   <UButton
@@ -156,7 +160,6 @@ const hasData = computed(() => {
         </table>
       </div>
 
-      <!-- Vista móvil -->
       <div class="block md:hidden divide-y divide-gray-200 dark:divide-gray-700">
         <div v-for="selection in props.data" :key="selection._id" class="p-4">
           <div class="flex items-start justify-between mb-3">
@@ -171,10 +174,10 @@ const hasData = computed(() => {
             <UDropdownMenu 
               :items="[
                 { type: 'label', label: 'Acciones' },
-                { label: 'Ver detalles', icon: 'i-lucide-eye', click: () => router.push(`/detailBook/${selection.book_id?.id}`) },
+                { label: 'Ver detalles', icon: 'i-lucide-eye', onSelect: () => router.push(`/detailBook/${selection.book_id?.id}`) },
                 { type: 'separator' },
-                { label: 'Editar reseña', icon: 'i-lucide-edit', onSelect: () => emit('edit-review', selection) },
-                { label: 'Eliminar', icon: 'i-lucide-trash-2', click: () => props.removeBookFromLibrary(selection.book_id?.id as string), class: 'text-red-600' }
+                { label: 'Editar reseña', icon: 'i-lucide-edit', onSelect: () => handleEditReview(selection) },
+                { label: 'Eliminar', icon: 'i-lucide-trash-2', onSelect: () => handleRemoveBook(selection.book_id?.id), class: 'text-red-600' }
               ]"
             >
               <UButton icon="i-lucide-more-vertical" color="neutral" variant="ghost" size="sm" />
@@ -191,13 +194,6 @@ const hasData = computed(() => {
             </div>
             <span class="text-xs text-gray-500 dark:text-gray-400">{{ getPublicationYear(selection) }}</span>
           </div>
-        </div>
-      </div>
-
-      <!-- Footer con estadísticas -->
-      <div class="px-4 py-3 bg-gray-50 dark:bg-gray-900/50 border-t border-gray-200 dark:border-gray-700">
-        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 text-sm text-gray-600 dark:text-gray-400">
-          <div>{{ selectedRows.length }} de {{ props.data.length }} libro(s) seleccionado(s)</div>
         </div>
       </div>
     </template>

@@ -27,7 +27,7 @@ const statusOptions = [
     { value: 'to-read', label: 'Por leer', color: 'neutral' },
     { value: 'reading', label: 'Leyendo', color: 'warning' },
     { value: 'read', label: 'Leído', color: 'success' }
-];
+] as const;
 
 // FUNCIÓN resetForm DEFINIDA ANTES DEL WATCH
 const resetForm = () => {
@@ -107,7 +107,7 @@ const handleClose = () => {
 // Función para obtener el color del status
 const getStatusColor = (statusValue: string) => {
     const statusOption = statusOptions.find(opt => opt.value === statusValue);
-    return statusOption?.color || 'neutral';
+    return (statusOption?.color || 'neutral') as 'neutral' | 'warning' | 'success';
 };
 </script>
 
@@ -155,7 +155,7 @@ const getStatusColor = (statusValue: string) => {
                                     ? 'border-primary-500 bg-primary-50 dark:bg-primary-900/20 text-primary-700 dark:text-primary-300'
                                     : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600 text-gray-700 dark:text-gray-300'" @click="status = option.value">
                                 <UBadge 
-                                :color="getStatusColor(option.color)"
+                                :color="getStatusColor(option.value)"
                                 variant="subtle"
                                 size="xs"
                                 class="mb-1"
